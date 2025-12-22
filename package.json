@@ -13,6 +13,7 @@
 	},
 	"dependencies": {
 		"@astrojs/cloudflare": "12.6.12",
+		"@astrojs/db": "^0.18.3",
 		"@astrojs/mdx": "4.3.12",
 		"@astrojs/rss": "4.0.14",
 		"@astrojs/sitemap": "3.6.0",

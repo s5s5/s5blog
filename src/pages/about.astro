@@ -1,62 +1,377 @@
 ---
-import Layout from '../layouts/BlogPost.astro';
+import { CDN_URL } from "../consts.ts";
+import Layout from "../layouts/BlogPost.astro";
 ---
 
-<Layout
-	title="About Me"
-	description="Lorem ipsum dolor sit amet"
-	pubDate={new Date('August 08 2021')}
-	heroImage="/blog-placeholder-about.jpg"
->
-	<p>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-		labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo
-		viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam
-		adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus
-		et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus
-		vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque
-		sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
-	</p>
-
-	<p>
-		Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non
-		tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non
-		blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna
-		porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis
-		massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc.
-		Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis
-		bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra
-		massa massa ultricies mi.
-	</p>
-
-	<p>
-		Mollis nunc sed id semper risus in. Convallis a cras semper auctor neque. Diam sit amet nisl
-		suscipit. Lacus viverra vitae congue eu consequat ac felis donec. Egestas integer eget aliquet
-		nibh praesent tristique magna sit amet. Eget magna fermentum iaculis eu non diam. In vitae
-		turpis massa sed elementum. Tristique et egestas quis ipsum suspendisse ultrices. Eget lorem
-		dolor sed viverra ipsum. Vel turpis nunc eget lorem dolor sed viverra. Posuere ac ut consequat
-		semper viverra nam. Laoreet suspendisse interdum consectetur libero id faucibus. Diam phasellus
-		vestibulum lorem sed risus ultricies tristique. Rhoncus dolor purus non enim praesent elementum
-		facilisis. Ultrices tincidunt arcu non sodales neque. Tempus egestas sed sed risus pretium quam
-		vulputate. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Fringilla
-		urna porttitor rhoncus dolor purus non. Amet dictum sit amet justo donec enim.
-	</p>
-
-	<p>
-		Mattis ullamcorper velit sed ullamcorper morbi tincidunt. Tortor posuere ac ut consequat semper
-		viverra. Tellus mauris a diam maecenas sed enim ut sem viverra. Venenatis urna cursus eget nunc
-		scelerisque viverra mauris in. Arcu ac tortor dignissim convallis aenean et tortor at. Curabitur
-		gravida arcu ac tortor dignissim convallis aenean et tortor. Egestas tellus rutrum tellus
-		pellentesque eu. Fusce ut placerat orci nulla pellentesque dignissim enim sit amet. Ut enim
-		blandit volutpat maecenas volutpat blandit aliquam etiam. Id donec ultrices tincidunt arcu. Id
-		cursus metus aliquam eleifend mi.
-	</p>
-
-	<p>
-		Tempus quam pellentesque nec nam aliquam sem. Risus at ultrices mi tempus imperdiet. Id porta
-		nibh venenatis cras sed felis eget velit. Ipsum a arcu cursus vitae. Facilisis magna etiam
-		tempor orci eu lobortis elementum. Tincidunt dui ut ornare lectus sit. Quisque non tellus orci
-		ac. Blandit libero volutpat sed cras. Nec tincidunt praesent semper feugiat nibh sed pulvinar
-		proin gravida. Egestas integer eget aliquet nibh praesent tristique magna.
-	</p>
+<Layout title="关于米随随" pubDate={new Date("2010-04-18T04:04:49.000Z")}>
+  <p style="text-align: center;">
+    <img
+      fetchpriority="high"
+      decoding="async"
+      src={`${CDN_URL}/assets/uploads/2010/04/misuisui.jpg`}
+      alt="米随随"
+      width="600"
+      height="406"
+    />
+  </p>
+  <h2>关于米随随</h2>
+  <p style="padding-left: 30px;">
+    很多人问过为什么我的网名叫“米随随”，为什么叫“s5s5”，这是因为用智能ABC输入法打
+    im 空格 就会出现“米”字，打 s5s5 空格 就会出现“随随”两个字。而又为什么叫 s5s5
+    是因为刚上网哪阵成天就忙着打CS，在CS里面得起个名，想了好几天就叫 s5s5
+    ，从符号上来看 s 和 5 比较相近，从读音上来读要把 s5
+    读两遍，这都是为了方便大家记忆。
+  </p>
+  <p style="padding-left: 30px;">
+    爹妈给的名字是 刘小超 ，进公司要起英文名叫 Super Liu
+    ，从小比较安静不闹腾，不过现在长大了就有点人来疯。学生时代学业平平，考大学也是考了三次才考上，小时候的理想是当个送报纸的，后来接触了电脑和网络才真正找到理想所在。曾经就职于
+    Tencent
+    ，从切图仔慢慢转成了前端开发。平时喜欢阅读，也写点博客，看电影看电视打游戏有时间就搞，现在有老婆孩子了，当然大小事都得请示一下老婆为妙。
+  </p>
+  <h2>关于本站</h2>
+  <p style="padding-left: 30px;">
+    本站是指 [米随随]s5s5(s5s5.me) ，网站于2003年开始创建，2005年申请
+    misuisui.com
+    域名。03至05年以网摘、技术笔记为主，05至07年内容由IT评论、生活琐事、技术笔记为主，07年后主要以技术笔记、网摘为主。建设本站的目的一开始只是看别人有所以我也要有的想法，结果发现Web开发这一领域非常有好玩且很有成就感，所以后来就业也从事这一领域工作。成为职业IT业者后，在工作中又更加深入的理解了Web，所以就更加希望通过Web技术来改善人类生活，以实现我的个人价值所在。
+  </p>
+  <h2>版权</h2>
+  <p style="padding-left: 30px;">
+    如非特别注明，本站所有作品采用<a
+      href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.zh-hans"
+      target="_blank">署名-非商业性使用-禁止演绎 4.0 国际许可协议</a
+    >进行许可。
+  </p>
+  <h2>联系</h2>
+  <p style="padding-left: 30px;">
+    <a href="mailto:s5s5cn@gmail.com">s5s5cn@gmail.com</a>
+  </p>
+  <h2>友情链接</h2>
+  <ul>
+    <li>
+      <a
+        href="https://www.chengrang.com/"
+        target="_blank"
+        rel="noopener noreferrer">练小习的前端技术笔记</a
+      >
+    </li>
+    <li>
+      <a
+        href="http://www.rainaxin.me/"
+        target="_blank"
+        rel="noopener noreferrer">Raina’s Blog</a
+      >
+    </li>
+    <li>
+      <a
+        title="Afly's Blog"
+        href="http://www.playes.net/"
+        target="_blank"
+        rel="noopener noreferrer">Afly’s Blog</a
+      >
+    </li>
+    <li>
+      <a href="http://yuanyun.me/" target="_blank" rel="noopener noreferrer"
+        >元云</a
+      >
+    </li>
+    <li>
+      <a href="http://blog.linxz.de/" target="_blank" rel="noopener noreferrer"
+        >linxz’BLOG</a
+      >
+    </li>
+    <li>
+      <a href="http://ooxx.me/" target="_blank" rel="noopener noreferrer"
+        >大猫の意淫网志</a
+      >
+    </li>
+    <li>
+      <a
+        title="自然.而然"
+        href="http://www.v4uu.com/blog/"
+        target="_blank"
+        rel="noopener noreferrer">自然.而然</a
+      >
+    </li>
+    <li>
+      <a
+        href="http://www.whichguan.com/"
+        target="_blank"
+        rel="noopener noreferrer">围起 which</a
+      >
+    </li>
+    <li>
+      <a
+        title="轶侠的网上小窝"
+        href="http://www.e-xia.com/"
+        target="_blank"
+        rel="noopener noreferrer">轶侠的网上小窝</a
+      >
+    </li>
+    <li>
+      <a
+        title="Taylor's Blog"
+        href="http://www.imtay.com/blog/"
+        target="_blank"
+        rel="noopener noreferrer">Taylor’s Blog</a
+      >
+    </li>
+    <li>
+      <a href="http://tesion.cn/" target="_blank" rel="noopener noreferrer"
+        >tesion.home</a
+      >
+    </li>
+    <li>
+      <a
+        title="丁学"
+        href="http://www.cnblogs.com/dingxue/"
+        target="_blank"
+        rel="noopener noreferrer">丁学</a
+      >
+    </li>
+    <li>
+      <a
+        title="卜卜堂"
+        href="http://blog.bubutang.com/"
+        target="_blank"
+        rel="noopener noreferrer">卜卜堂</a
+      >
+    </li>
+    <li>
+      <a
+        title="鬼仔's Blog"
+        href="http://huaidan.org/"
+        target="_blank"
+        rel="noopener noreferrer">鬼仔’s Blog</a
+      >
+    </li>
+    <li>
+      <a
+        href="http://www.funnyapple.com/"
+        target="_blank"
+        rel="noopener noreferrer">Jessica</a
+      >
+    </li>
+    <li>
+      <a href="http://www.topcss.org/" target="_blank" rel="noopener noreferrer"
+        >进步博客</a
+      >
+    </li>
+    <li>
+      <a
+        title="浅的布拉格"
+        href="http://www.wintery.cn/blog/"
+        target="_blank"
+        rel="noopener noreferrer">浅的布拉格</a
+      >
+    </li>
+    <li>
+      <a
+        title="牛 府"
+        href="http://www.ipigg.com/bl/"
+        target="_blank"
+        rel="noopener noreferrer">牛 府</a
+      >
+    </li>
+    <li>
+      <a
+        title="前端观察 – 专注于网站前端设计与前端开发"
+        href="http://www.qianduan.net/"
+        target="_blank"
+        rel="noopener noreferrer">前端观察</a
+      >
+    </li>
+    <li>
+      <a
+        title="柒米"
+        href="http://www.keymi.cn/"
+        target="_blank"
+        rel="noopener noreferrer">柒米</a
+      >
+    </li>
+    <li>
+      <a href="http://k.css6.com/" target="_blank" rel="noopener noreferrer"
+        >土人老徐</a
+      >
+    </li>
+    <li>
+      <a
+        href="http://tommyfan.com/blog/"
+        target="_blank"
+        rel="noopener noreferrer">偷米寄居</a
+      >
+    </li>
+    <li>
+      <a href="http://www.99css.com/" target="_blank" rel="noopener noreferrer"
+        >99css</a
+      >
+    </li>
+    <li>
+      <a
+        title="悠嗯~"
+        href="http://2u2n.com/blog/"
+        target="_blank"
+        rel="noopener noreferrer">悠嗯~</a
+      >
+    </li>
+    <li>
+      <a
+        title="Lanke Blog"
+        href="http://www.lanke.net/"
+        target="_blank"
+        rel="noopener noreferrer">Lanke Blog</a
+      >
+    </li>
+    <li>
+      <a
+        title="Gulu77"
+        href="http://blog.gulu77.com/"
+        target="_blank"
+        rel="noopener noreferrer">Gulu77</a
+      >
+    </li>
+    <li>
+      <a
+        title="毅博客"
+        href="http://andymao.com/andy/"
+        target="_blank"
+        rel="noopener noreferrer">毅博客</a
+      >
+    </li>
+    <li>
+      <a
+        title="王凯的博客"
+        href="http://www.wangkai.org/"
+        target="_blank"
+        rel="noopener noreferrer">王凯的博客</a
+      >
+    </li>
+    <li>
+      <a
+        title="Rlog"
+        href="http://rlog.cn/"
+        target="_blank"
+        rel="noopener noreferrer">Rlog</a
+      >
+    </li>
+    <li>
+      <a href="http://qilei.org/" target="_blank" rel="noopener noreferrer"
+        >浆抱罗斯‘s blog</a
+      >
+    </li>
+    <li>
+      <a
+        title="{ iVane.NET }"
+        href="http://blog.ivane.me/"
+        target="_blank"
+        rel="noopener noreferrer">{"{iVane.NET}"}</a
+      >
+    </li>
+    <li>
+      <a
+        href="http://www.tysonpan.com/"
+        target="_blank"
+        rel="noopener noreferrer">tysonpan.com</a
+      >
+    </li>
+    <li>
+      <a href="http://csshouse.net/" target="_blank" rel="noopener noreferrer"
+        >CSS HOUSE</a
+      >
+    </li>
+    <li>
+      <a
+        title="飘飘的生活空间"
+        href="http://www.pufen.net/"
+        target="_blank"
+        rel="noopener noreferrer">飘飘的生活空间</a
+      >
+    </li>
+    <li>
+      <a
+        title="Orangedo"
+        href="http://www.orangedo.com/blog/"
+        target="_blank"
+        rel="noopener noreferrer">Orangedo</a
+      >
+    </li>
+    <li>
+      <a
+        title="PRcss"
+        href="http://blog.pr1984.com/"
+        target="_blank"
+        rel="noopener noreferrer">PRcss</a
+      >
+    </li>
+    <li>
+      <a
+        title="cbm's land"
+        href="http://www.cbmland.com/"
+        target="_blank"
+        rel="noopener noreferrer">cbm’s land</a
+      >
+    </li>
+    <li>
+      <a
+        title="Acheng"
+        href="http://ac.geodesy.cn/"
+        target="_blank"
+        rel="noopener noreferrer">Acheng</a
+      >
+    </li>
+    <li>
+      <a
+        title="无聊布棉的blog"
+        href="http://www.xucx.com/blog/"
+        target="_blank"
+        rel="noopener noreferrer">无聊布棉的blog</a
+      >
+    </li>
+    <li>
+      <a
+        title="行走·思考"
+        href="http://www.clys.net/blog/"
+        target="_blank"
+        rel="noopener noreferrer">行走·思考</a
+      >
+    </li>
+    <li>
+      <a
+        href="http://yuguo.us/weblog/"
+        target="_blank"
+        rel="noopener noreferrer">Yuguo Blog</a
+      >
+    </li>
+    <li>
+      <a
+        title="henring:思想，灵魂；一个人的。"
+        href="http://henring.blogbus.com/"
+        target="_blank"
+        rel="noopener noreferrer">henring:思想，灵魂；一个人的。</a
+      >
+    </li>
+    <li>
+      <a
+        title="CSS森林"
+        href="http://www.cssforest.org/blog/"
+        target="_blank"
+        rel="noopener noreferrer">CSS森林</a
+      >
+    </li>
+    <li>
+      <a
+        title="-~☆LI皮皮︵ "
+        href="http://www.lipipi.cn/"
+        target="_blank"
+        rel="noopener noreferrer">-~☆LI皮皮︵</a
+      >
+    </li>
+    <li>
+      <a
+        title="腾讯 ISUX 全称腾讯社交用户体验设计部 (Internet Social User Experience)"
+        href="http://isux.tencent.com/"
+        target="_blank"
+        rel="noopener noreferrer">ISUX</a
+      >
+    </li>
+  </ul>
 </Layout>

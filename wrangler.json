@@ -1,24 +1,24 @@
 {
-	"name": "s5blog",
-	"compatibility_date": "2025-10-08",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"main": "./dist/_worker.js/index.js",
-	"assets": {
-		"directory": "./dist",
-		"binding": "ASSETS"
-	},
-	"observability": {
-		"enabled": true
-	},
-	"upload_source_maps": true,
-	"d1_databases": [
-		{
-			"binding": "DB2",
-			"database_name": "s5-blog-comments",
-			"database_id": "ea67f3b3-95e7-4b80-bcb1-78ca81201d21",
-			"remote": true
-		}
-	]
+  "name": "s5blog",
+  "compatibility_date": "2025-10-08",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./dist/_worker.js/index.js",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "drop-trailing-slash",
+    "not_found_handling": "404-page",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "upload_source_maps": true,
+  "d1_databases": [
+    {
+      "binding": "DB2",
+      "database_name": "s5-blog-comments",
+      "database_id": "ea67f3b3-95e7-4b80-bcb1-78ca81201d21",
+      "remote": true
+    }
+  ]
 }

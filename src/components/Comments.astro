@@ -1,15 +1,138 @@
 ---
-// 你甚至不需要导入 drizzle 或 D1Database，直接从 locals 拿
-const { db } = Astro.locals;
+import { GET } from "../pages/api/post/[postSlug]/comments.ts";
+// export const prerender = false;
+type Props = {
+  postSlug: string;
+};
 
-// 因为我们在 env.d.ts 里定义了泛型 <typeof schema>
-// 这里输入 db.query.comments.findMany 会有完美的自动补全！
-const commentList = await db.query.comments.findMany({
-    limit: 10,
-    orderBy: (comments, { desc }) => [desc(comments.createdAt)],
+import type { Comment } from "../types";
+import CommentReplies from "./CommentReplies.astro";
+
+// Type for comment with replies
+type CommentNode = Comment & {
+  replies: CommentNode[];
+};
+
+const { postSlug } = Astro.props;
+
+// Fetch comments from API endpoint
+let comments: Comment[] = [];
+let hasError = false;
+
+try {
+  // Build full URL for SSR context
+  // const url = new URL(`/api/post/${postSlug}/comments`, Astro.url);
+
+  // const response = await fetch(url);
+  const response = await GET(Astro);
+  if (!response.ok) {
+    console.error(`[Comments] API error: ${response.status}`);
+    hasError = true;
+  } else {
+    const data = await response.json();
+    comments = data?.success ? data.items : [];
+    if (!data?.success) {
+      console.error("[Comments] API returned success: false", data.error);
+      hasError = true;
+    }
+  }
+} catch (error) {
+  console.error("[Comments] Failed to fetch comments:", error);
+  hasError = true;
+}
+
+// Build comment tree structure
+const commentMap = new Map<number, CommentNode>();
+const topLevelComments: CommentNode[] = [];
+
+// First pass: create map of all comments
+comments.forEach((comment) => {
+  commentMap.set(comment.id, { ...comment, replies: [] });
+});
+
+// Second pass: build tree structure
+comments.forEach((comment) => {
+  if (!comment.parent_id) {
+    const node = commentMap.get(comment.id);
+    if (node) {
+      topLevelComments.push(node);
+    }
+  } else {
+    const parent = commentMap.get(comment.parent_id);
+    const child = commentMap.get(comment.id);
+    if (parent && child) {
+      parent.replies.push(child);
+    }
+  }
+});
+
+// Sort replies by created_at
+topLevelComments.forEach((comment) => {
+  if (comment.replies) {
+    comment.replies.sort(
+      (a, b) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+  }
 });
 ---
 
-<ul>
-    {commentList.map(c => <li>{c.content}</li>)}
-</ul>
+{
+  hasError ? (
+    <div class="comments-error">
+      <p>Failed to load comments.</p>
+    </div>
+  ) : comments.length === 0 ? (
+    <p class="no-comments">
+      No comments yet. Be the first to share your thoughts!
+    </p>
+  ) : (
+    <div class="comments-list">
+      {topLevelComments.map((comment) => (
+        <div class="comment">
+          <p>
+            <strong>{comment.author_name}</strong> at
+            <time>{new Date(comment.created_at).toLocaleString()}</time> 说:
+          </p>
+          <p>{comment.content}</p>
+          {comment.replies && comment.replies.length > 0 && (
+            <div class="comment-replies">
+              <CommentReplies replies={comment.replies} />
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+<style>
+  .comment-replies {
+    margin-top: 1rem;
+    margin-left: 2rem;
+    padding-left: 1rem;
+    border-left: 2px solid #e0e0e0;
+  }
+
+  .comment-replies .comment {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .comment {
+    padding: 1rem 0;
+  }
+
+  .comment p {
+    margin: 0.5rem 0;
+  }
+
+  .comment strong {
+    font-weight: 600;
+  }
+
+  .comment time {
+    color: #666;
+    font-size: 0.9em;
+  }
+</style>

@@ -203,3 +203,8 @@ dist
 
 # IDE
 .idea/
+
+# Other
+wordpress/assets/
+wordpress/xml/
+temp/

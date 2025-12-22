@@ -1,5 +1,4 @@
 import { defineMiddleware } from "astro:middleware";
-
 import { createDbClient } from "./db/client";
 
 export const onRequest = defineMiddleware((context, next) => {

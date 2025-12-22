@@ -1,4 +1,11 @@
 ---
+import {
+  generatePaginationPages,
+  getNextPageUrl,
+  getPageUrl,
+  getPrevPageUrl
+} from "../utils/pagination";
+
 type Props = {
   page: number;
   totalPages: number;
@@ -7,13 +14,6 @@ type Props = {
   prevPageUrl?: string;
   nextPageUrl?: string;
 };
-
-import {
-  generatePaginationPages,
-  getNextPageUrl,
-  getPageUrl,
-  getPrevPageUrl
-} from "../utils/pagination";
 
 const {
   page,

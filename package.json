@@ -22,7 +22,7 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@trivago/prettier-plugin-sort-imports": "^6.0.0",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
     "prettier": "^3.7.4",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-sql": "^0.19.2",

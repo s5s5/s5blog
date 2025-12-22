@@ -67,15 +67,16 @@
 
 4. **处理重定向 (SEO):**
    - 如果在 WP 的链接是 /2023/01/post-name，而 Astro 是 /blog/post-name。
-   - 在 public/ 目录下创建 _redirects 文件 (Cloudflare 格式)：  
+   - 在 public/ 目录下创建 \_redirects 文件 (Cloudflare 格式)：  
      Plaintext  
-     /2023/* /blog/:splat 301
+     /2023/\* /blog/:splat 301
 
 ### **Phase 3: 评论系统实现（Cloudflare Workers + D1）**
 
 **目标:** 构建一个自定义评论系统，支持 WordPress 评论导入与管理。
 
 **为什么不用第三方评论系统：**
+
 - **Waline**：Cloudflare Workers 部署可行性受限，且对 **D1** 支持不完善，导入 WordPress 评论困难。
 - **Twikoo**：Cloudflare 部署后不能导入 WordPress 评论。
 - **Disqus**：可正常接入，但导入 WordPress 评论失败（常见因 WXR 格式/队列/审核等问题）。
@@ -85,6 +86,7 @@
 #### 1) 自建方案：Cloudflare Workers + D1 + Astro Actions
 
 **优势：**
+
 - 完全掌控评论数据，支持 WordPress 评论导入
 - Astro Actions 集成，统一代码库，无需独立部署
 - 100% 可迁移性：将来可轻松迁移到自建 VPS
@@ -93,9 +95,9 @@
 **核心流程：**
 
 1. **数据库设计（D1 / SQLite）**
-   
+
    部署到 D1 的数据库 Schema：
-   
+
    ```sql
    CREATE TABLE IF NOT EXISTS comments (
      id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -112,8 +114,10 @@
      status TEXT NOT NULL DEFAULT 'pending',
      created_at TEXT NOT NULL
    );
-   CREATE INDEX IF NOT EXISTS idx_comments_post ON comments(post_slug, status, created_at);
-   CREATE INDEX IF NOT EXISTS idx_comments_legacy ON comments(legacy_id);
+   
+   CREATE INDEX IF NOT EXISTS idx_comments_post ON comments (post_slug, status, created_at);
+   
+   CREATE INDEX IF NOT EXISTS idx_comments_legacy ON comments (legacy_id);
    ```
 
    **字段说明：**
@@ -150,7 +154,6 @@
 3. **WordPress 评论导入**
 
    从 WordPress WXR 文件解析并导入评论：
-
    - **第一阶段**：插入顶级评论（`parent_id = 0`）
    - **第二阶段**：插入子评论（利用第一阶段的 ID 映射填充 `parent_id`）
 
@@ -188,14 +191,12 @@
 5. **前端集成**
 
    在 `src/layouts/BlogPost.astro` 中集成评论组件：
-
    - 调用 `getComments` 加载该文章的评论
    - 展示评论列表及嵌套回复
    - 提供 `submitComment` 表单供访客评论
    - 头像使用 Gravatar：`https://www.gravatar.com/avatar/${md5(email)}?s=64&d=identicon`
 
 6. **安全与维护**
-
    - **Token 管理**：Token 存环境变量，不可硬编码；长度 ≥ 32 字节；定期轮换
    - **速率限制**：配合 Cloudflare 内置限流，防止垃圾评论与暴力破解
    - **XSS 防护**：入库前移除 `<script>` 等危险标签；前端渲染时使用 HTML 转义
@@ -210,10 +211,11 @@
    - 安装 Cloudflare Workers 适配器：`npm install @astrojs/cloudflare`
    - 在 `astro.config.mjs` 中配置适配器：
      ```javascript
-     import cloudflare from '@astrojs/cloudflare';
+     import cloudflare from "@astrojs/cloudflare";
+
      export default defineConfig({
        adapter: cloudflare(),
-       output: 'hybrid', // 支持静态生成和动态 SSR
+       output: "hybrid" // 支持静态生成和动态 SSR
      });
      ```
 3. **配置 Wrangler:**
@@ -234,12 +236,12 @@
 
 如果未来你想转回 VPS 自建，以下是无缝迁移路径：
 
-| 组件           | Cloudflare 方案 | 自建服务器 (VPS/Docker) 替代方案                                                       | 迁移难度             |
-| :------------- | :-------------- | :------------------------------------------------------------------------------------- | :------------------- |
-| **前端 + 后端** | CF Workers      | **Nginx / Node.js** 运行 Astro SSR 应用（或导出静态文件用 Nginx 服务）。                | 🟢 极低              |
-| **评论数据库** | D1 (SQLite)     | **SQLite 文件 / MySQL** 从 D1 导出 SQL，导入 VPS 上的数据库。                          | 🟡 中等 (需导数据)   |
-| **图片存储**   | R2              | **MinIO / 本地文件** 下载 R2 所有图片到 VPS，配置 Nginx 拦截 assets 域名指向本地目录。 | 🟡 中等 (需搬运文件) |
-| **SSL证书**    | 自动            | **Let's Encrypt** 使用 acme.sh 或 Nginx Proxy Manager 自动申请。                       | 🟢 低                |
+| 组件            | Cloudflare 方案 | 自建服务器 (VPS/Docker) 替代方案                                                       | 迁移难度             |
+| :-------------- | :-------------- | :------------------------------------------------------------------------------------- | :------------------- |
+| **前端 + 后端** | CF Workers      | **Nginx / Node.js** 运行 Astro SSR 应用（或导出静态文件用 Nginx 服务）。               | 🟢 极低              |
+| **评论数据库**  | D1 (SQLite)     | **SQLite 文件 / MySQL** 从 D1 导出 SQL，导入 VPS 上的数据库。                          | 🟡 中等 (需导数据)   |
+| **图片存储**    | R2              | **MinIO / 本地文件** 下载 R2 所有图片到 VPS，配置 Nginx 拦截 assets 域名指向本地目录。 | 🟡 中等 (需搬运文件) |
+| **SSL证书**     | 自动            | **Let's Encrypt** 使用 acme.sh 或 Nginx Proxy Manager 自动申请。                       | 🟢 低                |
 
 ---
 

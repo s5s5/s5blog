@@ -19,7 +19,8 @@
 
 **代码中的属性名必须与配置文件严格一致！**
 
-* 如果在 `wrangler.toml` (或 `wrangler.json`) 中配置：
+- 如果在 `wrangler.toml` (或 `wrangler.json`) 中配置：
+
 ```toml
 [[d1_databases]]
 binding = "DB" # <--- 这里叫 DB
@@ -27,23 +28,21 @@ database_name = "..."
 
 ```
 
-
-* 那么在代码 (`env.d.ts`, `middleware.ts`) 中就必须用 `env.DB`。
-* 如果你改成了 `binding = "MY_APP_DB"`, 代码里就要相应改成 `env.MY_APP_DB`。
+- 那么在代码 (`env.d.ts`, `middleware.ts`) 中就必须用 `env.DB`。
+- 如果你改成了 `binding = "MY_APP_DB"`, 代码里就要相应改成 `env.MY_APP_DB`。
 
 ### 📂 1. 数据库定义 (`src/db/schema.ts`)
 
 定义表结构，注意 SQLite 命名惯例与 TS 驼峰命名的映射。
 
 ```typescript
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-export const comments = sqliteTable('comments', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  content: text('content').notNull(),
+export const comments = sqliteTable("comments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  content: text("content").notNull()
   // ... 其他字段
 });
-
 ```
 
 ### 📂 2. 类型定义 (`src/env.d.ts`)
@@ -54,8 +53,8 @@ export const comments = sqliteTable('comments', {
 /// <reference path="../.astro/types.d.ts" />
 /// <reference types="astro/client" />
 
-import type { DrizzleD1Database } from 'drizzle-orm/d1';
-import * as schema from './db/schema';
+import type { DrizzleD1Database } from "drizzle-orm/d1";
+import * as schema from "./db/schema";
 
 type RuntimeEnv = import("./worker-configuration").Env;
 type CloudflareRuntime = import("@astrojs/cloudflare").Runtime<RuntimeEnv>;
@@ -68,7 +67,6 @@ declare global {
     }
   }
 }
-
 ```
 
 ### 📂 3. 中间件注入 (`src/middleware.ts`)
@@ -76,9 +74,9 @@ declare global {
 **关键点**：统一初始化连接，注意检查 `binding` 名称。
 
 ```typescript
-import { defineMiddleware } from 'astro:middleware';
-import { drizzle } from 'drizzle-orm/d1';
-import * as schema from './db/schema';
+import { drizzle } from "drizzle-orm/d1";
+import { defineMiddleware } from "astro:middleware";
+import * as schema from "./db/schema";
 
 export const onRequest = defineMiddleware((context, next) => {
   const runtime = context.locals.runtime;
@@ -90,7 +88,6 @@ export const onRequest = defineMiddleware((context, next) => {
 
   return next();
 });
-
 ```
 
 ---
@@ -104,7 +101,8 @@ export const onRequest = defineMiddleware((context, next) => {
 
 ```astro
 ---
-import { comments } from '../db/schema';
+import { comments } from "../db/schema";
+
 const { db } = Astro.locals; // 从 locals 直接解构
 
 // 这里会在用户访问时由 Cloudflare Worker 执行
@@ -112,9 +110,8 @@ const list = await db.query.comments.findMany();
 ---
 
 <div class="comments-list">
-  {list.map(c => <p>{c.content}</p>)}
+  {list.map((c) => <p>{c.content}</p>)}
 </div>
-
 ```
 
 ### 🚀 步骤 B：在页面中引用
@@ -124,22 +121,21 @@ const list = await db.query.comments.findMany();
 
 ```astro
 ---
-import Comments from '../components/Comments.astro';
+import Comments from "../components/Comments.astro";
 ---
 
 <Comments server:defer>
   <div slot="fallback">正在加载评论数据...</div>
 </Comments>
-
 ```
 
 ---
 
 ## 4. 常用命令清单
 
-* **生成类型**：`npm run wrangler types` (每次修改 binding 后必须运行)
-* **本地开发**：`npm run dev`
-* **部署**：`npm run deploy`
+- **生成类型**：`npm run wrangler types` (每次修改 binding 后必须运行)
+- **本地开发**：`npm run dev`
+- **部署**：`npm run deploy`
 
 ---
 
@@ -149,8 +145,8 @@ import Comments from '../components/Comments.astro';
 
 ### ✅ 不需要改动的部分
 
-* `src/db/schema.ts` (表结构定义完全通用)
-* 所有组件内的 `db.select()...` 查询逻辑
+- `src/db/schema.ts` (表结构定义完全通用)
+- 所有组件内的 `db.select()...` 查询逻辑
 
 ### 🛠 需要调整的部分
 
@@ -163,13 +159,14 @@ import Comments from '../components/Comments.astro';
 ## 6. 避坑指南
 
 1. **Binding 名称不一致**：
-* **现象**：`runtime.env.DB` 为 undefined。
-* **解决**：检查 `wrangler.toml` 中的 `binding = "XXX"` 是否与代码中的 `env.XXX` 一致。
 
+- **现象**：`runtime.env.DB` 为 undefined。
+- **解决**：检查 `wrangler.toml` 中的 `binding = "XXX"` 是否与代码中的 `env.XXX` 一致。
 
 2. **报错 `db undefined**`：
-* **解决**：确保在 `server:defer` 组件之外使用 `db` 时，页面设置了 `export const prerender = false`。
 
+- **解决**：确保在 `server:defer` 组件之外使用 `db` 时，页面设置了 `export const prerender = false`。
 
 3. **类型报错**：
-* **解决**：每次修改 `wrangler.toml` 后，记得运行 `npm run wrangler types` 更新 `Env` 接口定义。
+
+- **解决**：每次修改 `wrangler.toml` 后，记得运行 `npm run wrangler types` 更新 `Env` 接口定义。

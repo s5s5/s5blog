@@ -4,9 +4,7 @@ import sitemap from "@astrojs/sitemap";
 import type { Root } from "mdast";
 import remarkBreaks from "remark-breaks";
 import { visit } from "unist-util-visit";
-
 import { defineConfig } from "astro/config";
-
 import { CDN_URL } from "./src/consts.ts";
 
 // https://astro.build/config

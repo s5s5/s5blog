@@ -6,7 +6,7 @@ import FormattedDate from "../components/FormattedDate.astro";
 import Header from "../components/Header.astro";
 import Pagination from "../components/Pagination.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
-import { POSTS_PER_PAGE, calculateTotalPages } from "../utils/pagination";
+import { calculateTotalPages, POSTS_PER_PAGE } from "../utils/pagination";
 
 const allPosts = (await getCollection("blog")).sort(
   (a, b) => Number(b.id) - Number(a.id)

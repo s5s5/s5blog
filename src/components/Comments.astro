@@ -1,10 +1,10 @@
 ---
+// import type { Comment } from "../types";
+import CommentReplies from "./CommentReplies.astro";
+
 type Props = {
   postSlug: string;
 };
-
-// import type { Comment } from "../types";
-import CommentReplies from "./CommentReplies.astro";
 
 const { db } = Astro.locals;
 

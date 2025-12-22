@@ -1,0 +1,124 @@
+---
+type Props = {
+  page: number;
+  totalPages: number;
+  hasPrevPage?: boolean;
+  hasNextPage?: boolean;
+  prevPageUrl?: string;
+  nextPageUrl?: string;
+};
+
+import {
+  generatePaginationPages,
+  getNextPageUrl,
+  getPageUrl,
+  getPrevPageUrl
+} from "../utils/pagination";
+
+const {
+  page,
+  totalPages,
+  hasPrevPage = page > 1,
+  hasNextPage = page < totalPages,
+  prevPageUrl = getPrevPageUrl(page),
+  nextPageUrl = getNextPageUrl(page)
+} = Astro.props;
+
+const paginationPages = generatePaginationPages(page, totalPages);
+---
+
+{
+  totalPages > 1 && (
+    <nav class="pagination">
+      {hasPrevPage && (
+        <a href={prevPageUrl} class="prev-page">
+          ← 上一页
+        </a>
+      )}
+      <div class="page-numbers">
+        {paginationPages.map((pageNum) => {
+          if (pageNum === "...") {
+            return <span class="ellipsis">...</span>;
+          }
+          const pageNumber = pageNum as number;
+          const pageUrl = getPageUrl(pageNumber);
+          return (
+            <a
+              href={pageUrl}
+              class={pageNumber === page ? "page-link active" : "page-link"}
+            >
+              {pageNumber}
+            </a>
+          );
+        })}
+      </div>
+      {hasNextPage && (
+        <a href={nextPageUrl} class="next-page">
+          下一页 →
+        </a>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .prev-page,
+  .next-page {
+    padding: 0.5rem 1rem;
+    background-color: var(--accent, #f0f0f0);
+    color: var(--accent-dark, #333);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+  }
+
+  .prev-page:hover,
+  .next-page:hover {
+    background-color: var(--accent-dark, #ddd);
+  }
+
+  .page-numbers {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    padding: 0.4rem 0.6rem;
+    background-color: var(--accent, #f0f0f0);
+    color: var(--accent-dark, #333);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+
+  .page-link:hover {
+    background-color: var(--accent-dark, #ddd);
+  }
+
+  .page-link.active {
+    background-color: var(--accent-dark, #333);
+    color: white;
+    font-weight: 600;
+  }
+
+  .ellipsis {
+    padding: 0 0.3rem;
+    color: rgb(var(--gray-dark));
+  }
+</style>

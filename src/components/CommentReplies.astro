@@ -1,0 +1,66 @@
+---
+type Props = {
+  replies: CommentNode[];
+};
+
+import type { Comment } from "../actions";
+
+// Type for comment with replies
+type CommentNode = Comment & {
+  replies: CommentNode[];
+};
+
+const { replies } = Astro.props;
+---
+
+{
+  replies && replies.length > 0 && (
+    <>
+      {replies.map((reply: CommentNode) => (
+        <div class="comment">
+          <p>
+            <strong>{reply.author_name}</strong> at
+            <time>{new Date(reply.created_at).toLocaleString()}</time> 说:
+          </p>
+          <p>{reply.content}</p>
+          {reply.replies && reply.replies.length > 0 && (
+            <div class="comment-replies">
+              <Astro.self replies={reply.replies} />
+            </div>
+          )}
+        </div>
+      ))}
+    </>
+  )
+}
+
+<style>
+  .comment-replies {
+    margin-top: 1rem;
+    margin-left: 2rem;
+    padding-left: 1rem;
+    border-left: 2px solid #e0e0e0;
+  }
+
+  .comment-replies .comment {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .comment {
+    padding: 1rem 0;
+  }
+
+  .comment p {
+    margin: 0.5rem 0;
+  }
+
+  .comment strong {
+    font-weight: 600;
+  }
+
+  .comment time {
+    color: #666;
+    font-size: 0.9em;
+  }
+</style>

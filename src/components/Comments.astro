@@ -1,0 +1,15 @@
+---
+// 你甚至不需要导入 drizzle 或 D1Database，直接从 locals 拿
+const { db } = Astro.locals;
+
+// 因为我们在 env.d.ts 里定义了泛型 <typeof schema>
+// 这里输入 db.query.comments.findMany 会有完美的自动补全！
+const commentList = await db.query.comments.findMany({
+    limit: 10,
+    orderBy: (comments, { desc }) => [desc(comments.createdAt)],
+});
+---
+
+<ul>
+    {commentList.map(c => <li>{c.content}</li>)}
+</ul>

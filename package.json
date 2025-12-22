@@ -17,10 +17,13 @@
 		"@astrojs/rss": "4.0.14",
 		"@astrojs/sitemap": "3.6.0",
 		"astro": "5.16.2",
+		"dotenv": "^17.2.3",
+		"drizzle-orm": "^0.45.1",
 		"typescript": "5.9.3"
 	},
 	"devDependencies": {
-		"wrangler": "4.56.0"
+		"drizzle-kit": "^0.31.8",
+		"wrangler": "^4.56.0"
 	},
 	"private": true,
 	"scripts": {

@@ -1,10 +1,9 @@
 {
   "trailingComma": "none",
   "plugins": [
+    "prettier-plugin-sql",
     "@trivago/prettier-plugin-sort-imports",
-    "prettier-plugin-astro",
-    "prettier-plugin-astro-organize-imports",
-    "prettier-plugin-sql"
+    "prettier-plugin-astro"
   ],
   "overrides": [
     {
@@ -30,6 +29,5 @@
     "^.+\\.s?css$"
   ],
   "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true,
-  "importOrderTypeAssertions": true
+  "importOrderSortSpecifiers": true
 }

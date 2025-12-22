@@ -3,14 +3,16 @@ type Props = {
   replies: CommentNode[];
 };
 
-import type { Comment } from "../actions";
+const { replies } = Astro.props;
 
-// Type for comment with replies
-type CommentNode = Comment & {
+const { db } = Astro.locals;
+
+// 从 db.query.comments.findMany 的返回类型推断单条评论类型
+type RawCommentsArray = Awaited<ReturnType<typeof db.query.comments.findMany>>;
+type RawComment = RawCommentsArray extends Array<infer T> ? T : never;
+type CommentNode = RawComment & {
   replies: CommentNode[];
 };
-
-const { replies } = Astro.props;
 ---
 
 {
@@ -19,8 +21,8 @@ const { replies } = Astro.props;
       {replies.map((reply: CommentNode) => (
         <div class="comment">
           <p>
-            <strong>{reply.author_name}</strong> at
-            <time>{new Date(reply.created_at).toLocaleString()}</time> 说:
+            <strong>{reply.authorName}</strong> at
+            <time>{new Date(reply.createdAt).toLocaleString()}</time> 说:
           </p>
           <p>{reply.content}</p>
           {reply.replies && reply.replies.length > 0 && (

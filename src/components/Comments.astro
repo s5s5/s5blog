@@ -1,45 +1,26 @@
 ---
-import { GET } from "../pages/api/post/[postSlug]/comments.ts";
-// export const prerender = false;
 type Props = {
   postSlug: string;
 };
 
-import type { Comment } from "../types";
+// import type { Comment } from "../types";
 import CommentReplies from "./CommentReplies.astro";
 
-// Type for comment with replies
-type CommentNode = Comment & {
+const { db } = Astro.locals;
+
+// 从 db.query.comments.findMany 的返回类型推断单条评论类型
+type RawCommentsArray = Awaited<ReturnType<typeof db.query.comments.findMany>>;
+type RawComment = RawCommentsArray extends Array<infer T> ? T : never;
+type CommentNode = RawComment & {
   replies: CommentNode[];
 };
 
 const { postSlug } = Astro.props;
 
-// Fetch comments from API endpoint
-let comments: Comment[] = [];
-let hasError = false;
-
-try {
-  // Build full URL for SSR context
-  // const url = new URL(`/api/post/${postSlug}/comments`, Astro.url);
-
-  // const response = await fetch(url);
-  const response = await GET(Astro);
-  if (!response.ok) {
-    console.error(`[Comments] API error: ${response.status}`);
-    hasError = true;
-  } else {
-    const data = await response.json();
-    comments = data?.success ? data.items : [];
-    if (!data?.success) {
-      console.error("[Comments] API returned success: false", data.error);
-      hasError = true;
-    }
-  }
-} catch (error) {
-  console.error("[Comments] Failed to fetch comments:", error);
-  hasError = true;
-}
+const comments = await db.query.comments.findMany({
+  where: (comments, { eq }) => eq(comments.postSlug, postSlug),
+  orderBy: (comments, { asc }) => [asc(comments.createdAt)]
+});
 
 // Build comment tree structure
 const commentMap = new Map<number, CommentNode>();
@@ -52,13 +33,13 @@ comments.forEach((comment) => {
 
 // Second pass: build tree structure
 comments.forEach((comment) => {
-  if (!comment.parent_id) {
+  if (!comment.parentId) {
     const node = commentMap.get(comment.id);
     if (node) {
       topLevelComments.push(node);
     }
   } else {
-    const parent = commentMap.get(comment.parent_id);
+    const parent = commentMap.get(comment.parentId);
     const child = commentMap.get(comment.id);
     if (parent && child) {
       parent.replies.push(child);
@@ -71,18 +52,14 @@ topLevelComments.forEach((comment) => {
   if (comment.replies) {
     comment.replies.sort(
       (a, b) =>
-        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
   }
 });
 ---
 
 {
-  hasError ? (
-    <div class="comments-error">
-      <p>Failed to load comments.</p>
-    </div>
-  ) : comments.length === 0 ? (
+  comments.length === 0 ? (
     <p class="no-comments">
       No comments yet. Be the first to share your thoughts!
     </p>
@@ -91,8 +68,8 @@ topLevelComments.forEach((comment) => {
       {topLevelComments.map((comment) => (
         <div class="comment">
           <p>
-            <strong>{comment.author_name}</strong> at
-            <time>{new Date(comment.created_at).toLocaleString()}</time> 说:
+            <strong>{comment.authorName}</strong> at
+            <time>{new Date(comment.createdAt).toLocaleString()}</time> 说:
           </p>
           <p>{comment.content}</p>
           {comment.replies && comment.replies.length > 0 && (

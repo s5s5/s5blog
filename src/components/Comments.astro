@@ -1,5 +1,6 @@
 ---
 // import type { Comment } from "../types";
+import CommentForm from "./CommentForm.astro";
 import CommentReplies from "./CommentReplies.astro";
 
 type Props = {
@@ -72,6 +73,14 @@ topLevelComments.forEach((comment) => {
             <time>{new Date(comment.createdAt).toLocaleString()}</time> 说:
           </p>
           <p>{comment.content}</p>
+          <button
+            type="button"
+            class="comment-reply-btn"
+            data-comment-id={comment.id}
+            data-comment-author={comment.authorName}
+          >
+            回复
+          </button>
           {comment.replies && comment.replies.length > 0 && (
             <div class="comment-replies">
               <CommentReplies replies={comment.replies} />

@@ -1,47 +1,52 @@
 ---
 interface Props {
   postSlug: string;
-  parentId?: number;
 }
 
-const { postSlug, parentId } = Astro.props;
+const { postSlug } = Astro.props;
 ---
 
-<div class="comment-section">
-  <h3>发表评论</h3>
-
+<div id="comment-section">
+  <h2>发表评论</h2>
   <form id="comment-form">
-    <input type="hidden" name="s5s5_08" value={postSlug} />
-    {parentId && <input type="hidden" name="s5s5_yb" value={parentId} />}
+    <div class="comment-section">
+      <h3 id="reply-title" style="display: none;"></h3>
+      <button type="button" id="comment-cancel-reply" style="display:none;"
+        >取消回复</button
+      >
 
-    <div class="global-error error" id="global-error" style="display: none;">
+      <input type="hidden" name="s5s5_08" value={postSlug} />
+      <input type="hidden" id="s5s5_yb-input" name="s5s5_yb" value="" />
+
+      <div class="global-error error" id="global-error" style="display: none;">
+      </div>
+
+      <div class="form-group">
+        <label for="s5s5_b9">内容 *</label>
+        <textarea id="s5s5_b9" name="s5s5_b9" rows="5" required></textarea>
+        <p class="error" id="error-s5s5_b9"></p>
+      </div>
+
+      <div class="form-group">
+        <label for="s5s5_g5">昵称 *</label>
+        <input type="text" id="s5s5_g5" name="s5s5_g5" required />
+        <p class="error" id="error-s5s5_g5"></p>
+      </div>
+
+      <div class="form-group">
+        <label for="s5s5_a6">邮箱 *</label>
+        <input type="email" id="s5s5_a6" name="s5s5_a6" required />
+        <p class="error" id="error-s5s5_a6"></p>
+      </div>
+
+      <div class="form-group">
+        <label for="s5s5_0b">网站</label>
+        <input type="url" id="s5s5_0b" name="s5s5_0b" />
+        <p class="error" id="error-s5s5_0b"></p>
+      </div>
+
+      <button type="submit" id="submit-btn">提交评论</button>
     </div>
-
-    <div class="form-group">
-      <label for="s5s5_g5">昵称 *</label>
-      <input type="text" id="s5s5_g5" name="s5s5_g5" required />
-      <p class="error" id="error-s5s5_g5"></p>
-    </div>
-
-    <div class="form-group">
-      <label for="s5s5_a6">邮箱 *</label>
-      <input type="email" id="s5s5_a6" name="s5s5_a6" required />
-      <p class="error" id="error-s5s5_a6"></p>
-    </div>
-
-    <div class="form-group">
-      <label for="s5s5_0b">网站</label>
-      <input type="url" id="s5s5_0b" name="s5s5_0b" />
-      <p class="error" id="error-s5s5_0b"></p>
-    </div>
-
-    <div class="form-group">
-      <label for="s5s5_b9">内容 *</label>
-      <textarea id="s5s5_b9" name="s5s5_b9" rows="5" required></textarea>
-      <p class="error" id="error-s5s5_b9"></p>
-    </div>
-
-    <button type="submit" id="submit-btn">提交评论</button>
   </form>
 </div>
 
@@ -50,7 +55,17 @@ const { postSlug, parentId } = Astro.props;
 
   const form = document.getElementById("comment-form") as HTMLFormElement;
   const globalError = document.getElementById("global-error");
+  const textarea = form.querySelector("textarea") as HTMLTextAreaElement;
   const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
+  const parentIdInput = document.getElementById(
+    "s5s5_yb-input"
+  ) as HTMLInputElement;
+  const replyTitle = document.getElementById(
+    "reply-title"
+  ) as HTMLHeadingElement;
+  const cancelBtn = document.getElementById(
+    "comment-cancel-reply"
+  ) as HTMLButtonElement;
 
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -96,6 +111,35 @@ const { postSlug, parentId } = Astro.props;
       submitBtn.disabled = false;
       submitBtn.innerText = "提交评论";
     }
+  });
+
+  // 1. 监听所有回复按钮（委托模式）
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLButtonElement)?.closest(".comment-reply-btn");
+    if (!btn) return;
+
+    const commentId = (btn as HTMLButtonElement | null)?.dataset?.commentId;
+    const commentAuthor = (btn as HTMLButtonElement | null)?.dataset
+      ?.commentAuthor;
+    parentIdInput.value = commentId ?? ""; // 设置为回复某条评论
+    textarea.value = `@${commentAuthor} `; // 提示回复对象
+    replyTitle.innerText = `回复给 ${commentAuthor}`;
+    replyTitle.style.display = "block";
+
+    // 视觉反馈：将表单移动到当前回复按钮下方
+    btn.insertAdjacentElement("afterend", form);
+    cancelBtn.style.display = "inline";
+    textarea.focus();
+  });
+
+  // 2. 取消回复（回到主文章回复状态）
+  cancelBtn.addEventListener("click", () => {
+    parentIdInput.value = ""; // 清空，表示回复主文章
+    textarea.value = "";
+    replyTitle.innerText = "";
+    document.getElementById("comment-section")?.appendChild(form); // 移回底部
+    replyTitle.style.display = "none";
+    cancelBtn.style.display = "none";
   });
 
   function clearErrors() {

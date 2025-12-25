@@ -25,6 +25,14 @@ type CommentNode = RawComment & {
             <time>{new Date(reply.createdAt).toLocaleString()}</time> 说:
           </p>
           <p>{reply.content}</p>
+          <button
+            type="button"
+            class="comment-reply-btn"
+            data-comment-id={reply.id}
+            data-comment-author={reply.authorName}
+          >
+            回复
+          </button>
           {reply.replies && reply.replies.length > 0 && (
             <div class="comment-replies">
               <Astro.self replies={reply.replies} />

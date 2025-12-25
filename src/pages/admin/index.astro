@@ -1,0 +1,453 @@
+---
+// 1. 必须从 drizzle-orm 导入这些工具函数
+import { count, desc } from "drizzle-orm";
+// 2. 必须导入你的表结构定义 (路径请根据你的项目实际情况修改)
+import { comments } from "../../db/schema";
+
+// 权限检查 (强烈建议加上)
+// const user = Astro.locals.user;
+// // if (!user || user.role !== 'admin') return Astro.redirect('/');
+
+export const prerender = false;
+
+const COMMENTS_PER_PAGE = 5;
+const page = Math.max(1, parseInt(Astro.url.searchParams.get("page") || "1"));
+
+// 从 locals 获取 db 实例
+const { db } = Astro.locals;
+
+// --- 性能优化核心开始 ---
+
+// 步骤 A: 获取总条数 (SQL: SELECT count(*) FROM comments)
+// 这样做比查出所有数据再 .length 快得多，内存占用也极小
+const totalResult = await db.select({ value: count() }).from(comments);
+const totalComments = totalResult[0].value;
+
+// 计算分页参数
+const totalPages = Math.ceil(totalComments / COMMENTS_PER_PAGE);
+const offset = (page - 1) * COMMENTS_PER_PAGE;
+
+// 步骤 B: 获取当前页数据 (SQL: ... LIMIT 25 OFFSET X)
+// 这里演示使用 db.select() 的写法，这比 db.query 更底层，更容易控制 limit/offset
+const paginatedComments = await db
+  .select()
+  .from(comments)
+  .orderBy(desc(comments.createdAt))
+  .limit(COMMENTS_PER_PAGE)
+  .offset(offset);
+
+// --- 性能优化核心结束 ---
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin - Comments Management</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+      }
+
+      h1 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #222;
+        font-size: 28px;
+      }
+
+      .stats {
+        margin-bottom: 30px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .stats p {
+        margin: 8px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+      }
+
+      thead {
+        background-color: #f5f5f5;
+        border-bottom: 2px solid #ddd;
+      }
+
+      th {
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+      }
+
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+      }
+
+      tbody tr:hover {
+        background-color: #f9f9f9;
+      }
+
+      .author-info {
+        font-weight: 500;
+      }
+
+      .email {
+        color: #666;
+        font-size: 13px;
+      }
+
+      .content {
+        max-width: 400px;
+        word-break: break-word;
+        color: #555;
+      }
+
+      .date {
+        color: #999;
+        font-size: 13px;
+        white-space: nowrap;
+      }
+
+      .status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .status.public {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .status.pending {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+
+      .status.spam {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+
+      .status.deleted {
+        background-color: #e2e3e5;
+        color: #383d41;
+      }
+
+      select {
+        padding: 6px 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+        font-size: 13px;
+        cursor: pointer;
+        min-width: 100px;
+      }
+
+      select:hover {
+        border-color: #999;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+      }
+
+      .pagination a,
+      .pagination span {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #0066cc;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .pagination a:hover {
+        background-color: #f0f0f0;
+      }
+
+      .pagination span.current {
+        background-color: #0066cc;
+        color: white;
+        border-color: #0066cc;
+      }
+
+      .pagination span.disabled {
+        color: #999;
+        cursor: not-allowed;
+        border-color: #ddd;
+      }
+
+      .post-link {
+        color: #0066cc;
+        text-decoration: none;
+        font-size: 13px;
+      }
+
+      .post-link:hover {
+        text-decoration: underline;
+      }
+
+      .ip-info {
+        font-size: 12px;
+        color: #999;
+      }
+
+      /* Loading 状态样式 */
+      select:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>📝 Comments Management</h1>
+
+      <div class="stats">
+        <p><strong>Total Comments:</strong> {totalComments}</p>
+        <p>
+          <strong>Current Page:</strong>
+          {page} of {totalPages > 0 ? totalPages : 1}
+        </p>
+      </div>
+
+      {
+        totalComments === 0 ? (
+          <div class="empty-state">
+            <p>No comments yet.</p>
+          </div>
+        ) : (
+          <>
+            <table>
+              <thead>
+                <tr>
+                  <th>Author</th>
+                  <th>Post</th>
+                  <th>Content</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedComments.map((comment) => (
+                  <tr>
+                    <td>
+                      <div class="author-info">{comment.authorName}</div>
+                      <div class="email">{comment.authorEmail}</div>
+                      {comment.authorWebsite && (
+                        <div class="email">
+                          <a
+                            href={comment.authorWebsite}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {comment.authorWebsite}
+                          </a>
+                        </div>
+                      )}
+                      {comment.authorIp && (
+                        <div class="ip-info">IP: {comment.authorIp}</div>
+                      )}
+                    </td>
+                    <td>
+                      <a
+                        href={`/${comment.postSlug}`}
+                        class="post-link"
+                        target="_blank"
+                      >
+                        {comment.postSlug}
+                      </a>
+                    </td>
+                    <td>
+                      <div class="content">{comment.content}</div>
+                    </td>
+                    <td>
+                      <div class="date">
+                        {new Date(comment.createdAt).toLocaleString()}
+                      </div>
+                    </td>
+                    <td>
+                      <span
+                        id={`status-badge-${comment.id}`}
+                        class={`status ${comment.status}`}
+                      >
+                        {comment.status}
+                      </span>
+                    </td>
+                    <td>
+                      <label
+                        for={`status-${comment.id}`}
+                        style="display: none;"
+                      >
+                        Change status for comment
+                      </label>
+                      <select
+                        id={`status-${comment.id}`}
+                        data-comment-id={comment.id}
+                        class="status-select"
+                        data-original-value={comment.status}
+                      >
+                        <option
+                          value="public"
+                          selected={comment.status === "public"}
+                        >
+                          Public
+                        </option>
+                        <option
+                          value="pending"
+                          selected={comment.status === "pending"}
+                        >
+                          Pending
+                        </option>
+                        <option
+                          value="spam"
+                          selected={comment.status === "spam"}
+                        >
+                          Spam
+                        </option>
+                        <option
+                          value="deleted"
+                          selected={comment.status === "deleted"}
+                        >
+                          Deleted
+                        </option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {totalPages > 1 && (
+              <div class="pagination">
+                {page > 1 && <a href={`?page=1`}>« First</a>}
+                {page > 1 && <a href={`?page=${page - 1}`}>‹ Previous</a>}
+
+                {/* 显示页码 */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .slice(Math.max(0, page - 3), Math.min(totalPages, page + 2))
+                  .map((p) => (
+                    <>
+                      {p === page ? (
+                        <span class="current">{p}</span>
+                      ) : (
+                        <a href={`?page=${p}`}>{p}</a>
+                      )}
+                    </>
+                  ))}
+
+                {page < totalPages && <a href={`?page=${page + 1}`}>Next ›</a>}
+                {page < totalPages && (
+                  <a href={`?page=${totalPages}`}>Last »</a>
+                )}
+              </div>
+            )}
+          </>
+        )
+      }
+    </div>
+
+    <script>
+      // 3. 最佳实践：在 Script 标签中导入 actions
+      import { actions } from "astro:actions";
+
+      // 使用事件委托
+      document.addEventListener("change", async (e) => {
+        const target = e.target;
+        // 类型守卫
+        if (
+          !(target instanceof HTMLSelectElement) ||
+          !target.classList.contains("status-select")
+        )
+          return;
+
+        const commentId = parseInt(target.dataset.commentId || "0");
+        const newStatus = target.value as
+          | "public"
+          | "pending"
+          | "spam"
+          | "deleted";
+        const originalStatus = target.dataset.originalValue!;
+
+        // UI 乐观更新：禁用 select 防止重复提交
+        target.disabled = true;
+
+        try {
+          // 调用 Astro Action (自动处理 CSRF 和类型)
+          const { error } = await actions.comment.updateStatus({
+            commentId,
+            status: newStatus
+          });
+
+          if (error) {
+            throw new Error(error.message);
+          }
+
+          // 成功：更新 UI 而不是刷新页面 (体验更好)
+          const badge = document.getElementById(`status-badge-${commentId}`);
+          if (badge) {
+            badge.className = `status ${newStatus}`;
+            badge.textContent = newStatus;
+          }
+          // 更新 data 属性以备下次使用
+          target.dataset.originalValue = newStatus;
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Failed: " + (err instanceof Error ? err.message : String(err))
+          );
+          // 失败回滚
+          target.value = originalStatus;
+        } finally {
+          target.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -2,7 +2,10 @@ import { eq } from "drizzle-orm";
 import { ActionError, defineAction } from "astro:actions";
 import { z } from "astro:schema";
 import { comments } from "../db/schema";
-import { getClientIp } from "../lib/ip.ts";
+import { requireAdmin } from "../lib/guard.ts";
+import { getClientIp } from "../utils/ip.ts";
+
+const MY_EMAIL = "s5s5n@gmail.com";
 
 export const server = {
   comment: {
@@ -80,6 +83,15 @@ export const server = {
         status: z.enum(["pending", "public", "spam", "deleted"])
       }),
       handler: async (input, context) => {
+        // 鉴权
+        const user = await requireAdmin(context.request);
+        if (!user) {
+          throw new ActionError({
+            code: "FORBIDDEN",
+            message: "You do not have permission to perform this action."
+          });
+        }
+
         const { locals } = context;
         const db = locals?.db;
 

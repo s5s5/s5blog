@@ -3,14 +3,15 @@
 import { count, desc } from "drizzle-orm";
 // 2. 必须导入你的表结构定义 (路径请根据你的项目实际情况修改)
 import { comments } from "../../db/schema";
-
-// 权限检查 (强烈建议加上)
-// const user = Astro.locals.user;
-// // if (!user || user.role !== 'admin') return Astro.redirect('/');
+import { requireAdmin } from "../../lib/guard.ts";
 
 export const prerender = false;
 
-const COMMENTS_PER_PAGE = 5;
+// 权限检查
+const user = await requireAdmin(Astro.request);
+if (!user) return Astro.redirect("/");
+
+const COMMENTS_PER_PAGE = 25;
 const page = Math.max(1, parseInt(Astro.url.searchParams.get("page") || "1"));
 
 // 从 locals 获取 db 实例
@@ -246,7 +247,11 @@ const paginatedComments = await db
   </head>
   <body>
     <div class="container">
-      <h1>📝 Comments Management</h1>
+      <h1>
+        📝 Comments Management <span>欢迎, {user.name}</span><button
+          id="logout-btn">退出</button
+        >
+      </h1>
 
       <div class="stats">
         <p><strong>Total Comments:</strong> {totalComments}</p>
@@ -396,6 +401,8 @@ const paginatedComments = await db
     <script>
       // 3. 最佳实践：在 Script 标签中导入 actions
       import { actions } from "astro:actions";
+      // 1. 引入客户端实例
+      import { authClient } from "../../lib/auth-client";
 
       // 使用事件委托
       document.addEventListener("change", async (e) => {
@@ -447,6 +454,20 @@ const paginatedComments = await db
         } finally {
           target.disabled = false;
         }
+      });
+
+      const logoutBtn = document.getElementById("logout-btn");
+
+      logoutBtn?.addEventListener("click", async () => {
+        // 2. 调用退出方法
+        await authClient.signOut({
+          fetchOptions: {
+            onSuccess: () => {
+              // 3. 退出成功后，跳转回首页或登录页
+              window.location.href = "/admin/login";
+            }
+          }
+        });
       });
     </script>
   </body>

@@ -1,0 +1,48 @@
+---
+// 如果用户已经登录了，直接踢到受保护的页面（比如 /admin）
+import { auth } from "../../lib/auth";
+
+export const prerender = false;
+
+const session = await auth.api.getSession({ headers: Astro.request.headers });
+
+if (session) {
+  return Astro.redirect("/admin"); // 假设这是你想保护的 SSR 页面
+}
+---
+
+<html lang="zh-CN">
+  <head>
+    <title>登录</title>
+  </head>
+  <body
+    style="display: flex; justify-content: center; align-items: center; height: 100vh;"
+  >
+    <button
+      id="google-btn"
+      style="padding: 10px 20px; font-size: 16px; cursor: pointer;"
+    >
+      Google 登录 (仅管理员)
+    </button>
+
+    <script>
+      // 引入我们在之前步骤创建的客户端实例
+      import { authClient } from "../../lib/auth-client";
+
+      const btn = document.getElementById("google-btn");
+
+      btn?.addEventListener("click", async () => {
+        // 按钮变成加载状态
+        btn.innerText = "正在跳转...";
+        btn.setAttribute("disabled", "true");
+
+        await authClient.signIn.social({
+          provider: "google",
+          // 登录成功后跳转到哪里？
+          // 这里填你想保护的那个 SSR 页面路径
+          callbackURL: "/admin"
+        });
+      });
+    </script>
+  </body>
+</html>

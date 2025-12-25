@@ -11,34 +11,34 @@ const { postSlug, parentId } = Astro.props;
   <h3>发表评论</h3>
 
   <form id="comment-form">
-    <input type="hidden" name="postSlug" value={postSlug} />
-    {parentId && <input type="hidden" name="parentId" value={parentId} />}
+    <input type="hidden" name="s5s5_08" value={postSlug} />
+    {parentId && <input type="hidden" name="s5s5_yb" value={parentId} />}
 
     <div class="global-error error" id="global-error" style="display: none;">
     </div>
 
     <div class="form-group">
-      <label for="authorName">昵称 *</label>
-      <input type="text" id="authorName" name="authorName" required />
-      <p class="error" id="error-authorName"></p>
+      <label for="s5s5_g5">昵称 *</label>
+      <input type="text" id="s5s5_g5" name="s5s5_g5" required />
+      <p class="error" id="error-s5s5_g5"></p>
     </div>
 
     <div class="form-group">
-      <label for="authorEmail">邮箱 *</label>
-      <input type="email" id="authorEmail" name="authorEmail" required />
-      <p class="error" id="error-authorEmail"></p>
+      <label for="s5s5_a6">邮箱 *</label>
+      <input type="email" id="s5s5_a6" name="s5s5_a6" required />
+      <p class="error" id="error-s5s5_a6"></p>
     </div>
 
     <div class="form-group">
-      <label for="authorWebsite">网站</label>
-      <input type="url" id="authorWebsite" name="authorWebsite" />
-      <p class="error" id="error-authorWebsite"></p>
+      <label for="s5s5_0b">网站</label>
+      <input type="url" id="s5s5_0b" name="s5s5_0b" />
+      <p class="error" id="error-s5s5_0b"></p>
     </div>
 
     <div class="form-group">
-      <label for="content">内容 *</label>
-      <textarea id="content" name="content" rows="5" required></textarea>
-      <p class="error" id="error-content"></p>
+      <label for="s5s5_b9">内容 *</label>
+      <textarea id="s5s5_b9" name="s5s5_b9" rows="5" required></textarea>
+      <p class="error" id="error-s5s5_b9"></p>
     </div>
 
     <button type="submit" id="submit-btn">提交评论</button>
@@ -59,17 +59,17 @@ const { postSlug, parentId } = Astro.props;
     submitBtn.innerText = "提交中...";
 
     const formData = new FormData(form);
-    const parentIdRaw = formData.get("parentId");
-    const parentIdVal =
-      parentIdRaw && parentIdRaw !== "" ? Number(parentIdRaw) : undefined;
+    const s5s5_ybRaw = formData.get("s5s5_yb");
+    const s5s5_ybVal =
+      s5s5_ybRaw && s5s5_ybRaw !== "" ? Number(s5s5_ybRaw) : undefined;
 
     const payload = {
-      postSlug: formData.get("postSlug") as string,
-      authorName: formData.get("authorName") as string,
-      authorEmail: formData.get("authorEmail") as string,
-      authorWebsite: (formData.get("authorWebsite") as string) || undefined,
-      content: formData.get("content") as string,
-      parentId: parentIdVal
+      s5s5_08: formData.get("s5s5_08") as string,
+      s5s5_g5: formData.get("s5s5_g5") as string,
+      s5s5_a6: formData.get("s5s5_a6") as string,
+      s5s5_0b: (formData.get("s5s5_0b") as string) || undefined,
+      s5s5_b9: formData.get("s5s5_b9") as string,
+      s5s5_yb: s5s5_ybVal
     };
 
     try {

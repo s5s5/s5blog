@@ -8,12 +8,12 @@ export const server = {
     submit: defineAction({
       // accept: "form", // 如果你是通过 HTML Form 提交，取消注释这行
       input: z.object({
-        postSlug: z.string().min(1, "Post slug is required"),
-        content: z.string().min(1, "Content cannot be empty"),
-        authorName: z.string().min(1, "Name is required"),
-        authorEmail: z.string().email("Invalid email address"),
-        authorWebsite: z.string().url().optional(),
-        parentId: z.number().optional()
+        s5s5_08: z.string().min(1, "Post slug is required"),
+        s5s5_b9: z.string().min(1, "Content cannot be empty"),
+        s5s5_g5: z.string().min(1, "Name is required"),
+        s5s5_a6: z.string().email("Invalid email address"),
+        s5s5_0b: z.string().url().optional(),
+        s5s5_yb: z.number().optional()
       }),
       handler: async (input, context) => {
         const { request, locals } = context;
@@ -42,14 +42,14 @@ export const server = {
           const [insertedComment] = await db
             .insert(comments)
             .values({
-              postSlug: input.postSlug,
-              parentId: input.parentId ?? null,
-              authorName: input.authorName,
-              authorEmail: input.authorEmail,
-              authorWebsite: input.authorWebsite ?? null,
+              postSlug: input.s5s5_08,
+              parentId: input.s5s5_yb ?? null,
+              authorName: input.s5s5_g5,
+              authorEmail: input.s5s5_a6,
+              authorWebsite: input.s5s5_0b ?? null,
               authorIp,
               userAgent,
-              content: input.content,
+              content: input.s5s5_b9,
               status: "public",
               createdAt,
               // 确保你的 schema 定义里包含这些字段，并且如果有 legacy 字段设为 null

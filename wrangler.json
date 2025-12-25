@@ -1,7 +1,7 @@
 {
   "name": "s5blog",
   "compatibility_date": "2025-10-08",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "nodejs_compat_populate_process_env"],
   "main": "./dist/_worker.js/index.js",
   "assets": {
     "directory": "./dist",

@@ -1,5 +1,6 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
+import CommentForm from "../components/CommentForm.astro";
 import Comments from "../components/Comments.astro";
 import BlogPost from "../layouts/BlogPost.astro";
 
@@ -20,4 +21,5 @@ const { Content } = await render(post);
 <BlogPost {...post.data}>
   <Content />
   <Comments postSlug={post.id} server:defer />
+  <CommentForm postSlug={post.id} />
 </BlogPost>

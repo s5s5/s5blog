@@ -1,0 +1,158 @@
+---
+interface Props {
+  postSlug: string;
+  parentId?: number;
+}
+
+const { postSlug, parentId } = Astro.props;
+---
+
+<div class="comment-section">
+  <h3>发表评论</h3>
+
+  <form id="comment-form">
+    <input type="hidden" name="postSlug" value={postSlug} />
+    {parentId && <input type="hidden" name="parentId" value={parentId} />}
+
+    <div class="global-error error" id="global-error" style="display: none;">
+    </div>
+
+    <div class="form-group">
+      <label for="authorName">昵称 *</label>
+      <input type="text" id="authorName" name="authorName" required />
+      <p class="error" id="error-authorName"></p>
+    </div>
+
+    <div class="form-group">
+      <label for="authorEmail">邮箱 *</label>
+      <input type="email" id="authorEmail" name="authorEmail" required />
+      <p class="error" id="error-authorEmail"></p>
+    </div>
+
+    <div class="form-group">
+      <label for="authorWebsite">网站</label>
+      <input type="url" id="authorWebsite" name="authorWebsite" />
+      <p class="error" id="error-authorWebsite"></p>
+    </div>
+
+    <div class="form-group">
+      <label for="content">内容 *</label>
+      <textarea id="content" name="content" rows="5" required></textarea>
+      <p class="error" id="error-content"></p>
+    </div>
+
+    <button type="submit" id="submit-btn">提交评论</button>
+  </form>
+</div>
+
+<script>
+  import { actions, isInputError } from "astro:actions";
+
+  const form = document.getElementById("comment-form") as HTMLFormElement;
+  const globalError = document.getElementById("global-error");
+  const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearErrors();
+    submitBtn.disabled = true;
+    submitBtn.innerText = "提交中...";
+
+    const formData = new FormData(form);
+    const parentIdRaw = formData.get("parentId");
+    const parentIdVal =
+      parentIdRaw && parentIdRaw !== "" ? Number(parentIdRaw) : undefined;
+
+    const payload = {
+      postSlug: formData.get("postSlug") as string,
+      authorName: formData.get("authorName") as string,
+      authorEmail: formData.get("authorEmail") as string,
+      authorWebsite: (formData.get("authorWebsite") as string) || undefined,
+      content: formData.get("content") as string,
+      parentId: parentIdVal
+    };
+
+    try {
+      const { error } = await actions.comment.submit(payload);
+
+      if (error) {
+        if (isInputError(error)) {
+          Object.entries(error.fields).forEach(([fieldName, messages]) => {
+            showFieldError(fieldName, messages as string[]);
+          });
+        } else {
+          globalError!.style.display = "block";
+          globalError!.innerText = "提交失败: " + error.message;
+        }
+      } else {
+        form.reset();
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      globalError!.style.display = "block";
+      globalError!.innerText = "发生了意外错误。";
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerText = "提交评论";
+    }
+  });
+
+  function clearErrors() {
+    globalError!.style.display = "none";
+    globalError!.innerText = "";
+    document.querySelectorAll(".error").forEach((el) => {
+      if (el.id !== "global-error") el.innerHTML = "";
+    });
+  }
+
+  function showFieldError(fieldName: string, messages: string[]) {
+    const errorEl = document.getElementById(`error-${fieldName}`);
+    if (errorEl) {
+      errorEl.innerText = messages.join(", ");
+    }
+  }
+</script>
+
+<style>
+  /* 样式保持不变，略微增加一些 display 控制的平滑过渡 */
+  .comment-section {
+    max-width: 600px;
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+  }
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+  }
+  input,
+  textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  button {
+    background-color: #333;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    cursor: pointer;
+  }
+  button:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+  }
+  .error {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    min-height: 1.2em; /* 预留位置防止抖动 */
+  }
+</style>

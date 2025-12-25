@@ -21,8 +21,9 @@ export const comments = sqliteTable(
 
     // 4. 内容与状态
     content: text("content").notNull(),
-    // 设置默认值为 'pending'
-    status: text("status").notNull().default("pending"),
+    // 设置默认值为 'public'
+    // 评论状态（`pending` 待审、`public` 已发布、`spam` 垃圾、`deleted` 已删除）
+    status: text("status").notNull().default("public"),
 
     // 5. 时间字段
     // 注意：SQLite 存储时间为字符串，这里直接对应 TEXT

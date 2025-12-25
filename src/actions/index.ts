@@ -13,11 +13,17 @@ export const server = {
         s5s5_g5: z.string().min(1, "Name is required"),
         s5s5_a6: z.string().email("Invalid email address"),
         s5s5_0b: z.string().url().optional(),
-        s5s5_yb: z.number().optional()
+        s5s5_yb: z.number().optional(),
+        // 蜜罐字段
+        name: z.string().optional()
       }),
       handler: async (input, context) => {
+        if (input.name !== undefined) {
+          // 蜜罐字段被填写，可能是机器人提交，假装成功但不处理
+          return { success: true };
+        }
+
         const { request, locals } = context;
-        console.log("input", input);
 
         // 1. 获取数据库客户端
         // 最佳实践：确保在 Middleware 中初始化 db 并挂载到 locals
@@ -32,7 +38,6 @@ export const server = {
 
         // 获取 IP 和 User Agent
         const authorIp = getClientIp(context);
-        console.log("当前用户 IP:", authorIp);
         const userAgent = request.headers.get("user-agent") || null;
 
         // 3. 执行插入

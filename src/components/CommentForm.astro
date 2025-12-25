@@ -45,6 +45,12 @@ const { postSlug } = Astro.props;
         <p class="error" id="error-s5s5_0b"></p>
       </div>
 
+      <div class="form-group" id="name-group">
+        <label for="name">姓名 *</label>
+        <input type="text" id="name" name="name" />
+        <p class="error" id="error-name"></p>
+      </div>
+
       <button type="submit" id="submit-btn">提交评论</button>
     </div>
   </form>
@@ -105,6 +111,7 @@ const { postSlug } = Astro.props;
     const parentId = rawParentId ? Number(rawParentId) : undefined;
 
     const payload = {
+      name: (formData.get("name") as string) || undefined,
       s5s5_08: formData.get("s5s5_08") as string,
       s5s5_g5: formData.get("s5s5_g5") as string,
       s5s5_a6: formData.get("s5s5_a6") as string,
@@ -257,5 +264,14 @@ const { postSlug } = Astro.props;
     font-size: 0.875rem;
     margin-top: 0.25rem;
     min-height: 1.2em; /* 预留位置防止抖动 */
+  }
+  #name-group {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 0;
+    width: 0;
+    z-index: -1;
   }
 </style>

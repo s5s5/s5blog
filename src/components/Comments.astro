@@ -19,7 +19,8 @@ type CommentNode = RawComment & {
 const { postSlug } = Astro.props;
 
 const comments = await db.query.comments.findMany({
-  where: (comments, { eq }) => eq(comments.postSlug, postSlug),
+  where: (comments, { eq, and }) =>
+    and(eq(comments.postSlug, postSlug), eq(comments.status, "public")),
   orderBy: (comments, { asc }) => [asc(comments.createdAt)]
 });
 

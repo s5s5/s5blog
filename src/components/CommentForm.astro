@@ -10,7 +10,7 @@ const { postSlug } = Astro.props;
   <h2>发表评论</h2>
   <form id="comment-form">
     <div class="comment-section">
-      <h3 id="reply-title" style="display: none;"></h3>
+      <h3 id="comment-reply-title" style="display: none;"></h3>
       <button type="button" id="comment-cancel-reply" style="display:none;"
         >取消回复</button
       >
@@ -53,30 +53,56 @@ const { postSlug } = Astro.props;
 <script>
   import { actions, isInputError } from "astro:actions";
 
-  const form = document.getElementById("comment-form") as HTMLFormElement;
-  const globalError = document.getElementById("global-error");
-  const textarea = form.querySelector("textarea") as HTMLTextAreaElement;
-  const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
-  const parentIdInput = document.getElementById(
-    "s5s5_yb-input"
-  ) as HTMLInputElement;
-  const replyTitle = document.getElementById(
-    "reply-title"
-  ) as HTMLHeadingElement;
-  const cancelBtn = document.getElementById(
-    "comment-cancel-reply"
-  ) as HTMLButtonElement;
+  /**
+   * 1. 集中管理 DOM 元素
+   * 使用函数获取可以确保在脚本运行时元素存在，并方便复用
+   */
+  const elements = {
+    form: document.getElementById("comment-form") as HTMLFormElement,
+    container: document.getElementById("comment-section"),
+    globalError: document.getElementById("global-error"),
+    submitBtn: document.getElementById("submit-btn") as HTMLButtonElement,
+    textarea: document.querySelector(
+      "textarea[name='s5s5_b9']"
+    ) as HTMLTextAreaElement,
+    parentIdInput: document.getElementById("s5s5_yb-input") as HTMLInputElement,
+    replyTitle: document.getElementById(
+      "comment-reply-title"
+    ) as HTMLHeadingElement,
+    cancelBtn: document.getElementById(
+      "comment-cancel-reply"
+    ) as HTMLButtonElement
+  };
 
-  form?.addEventListener("submit", async (e) => {
+  // 简单的空值检查，防止页面结构变化导致脚本崩溃
+  if (elements.form) {
+    initForm();
+  }
+
+  function initForm() {
+    // 监听提交
+    elements.form.addEventListener("submit", handleSubmit);
+
+    // 监听取消回复
+    elements.cancelBtn?.addEventListener("click", resetReplyState);
+
+    // 监听点击“回复”按钮 (事件委托)
+    document.addEventListener("click", handleReplyClick);
+  }
+
+  /**
+   * 2. 处理表单提交逻辑
+   */
+  async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
     clearErrors();
-    submitBtn.disabled = true;
-    submitBtn.innerText = "提交中...";
+    setSubmitting(true);
 
-    const formData = new FormData(form);
-    const s5s5_ybRaw = formData.get("s5s5_yb");
-    const s5s5_ybVal =
-      s5s5_ybRaw && s5s5_ybRaw !== "" ? Number(s5s5_ybRaw) : undefined;
+    const formData = new FormData(elements.form);
+
+    // 处理父评论 ID (将空字符串转为 undefined，数字字符串转为 Number)
+    const rawParentId = formData.get("s5s5_yb");
+    const parentId = rawParentId ? Number(rawParentId) : undefined;
 
     const payload = {
       s5s5_08: formData.get("s5s5_08") as string,
@@ -84,7 +110,7 @@ const { postSlug } = Astro.props;
       s5s5_a6: formData.get("s5s5_a6") as string,
       s5s5_0b: (formData.get("s5s5_0b") as string) || undefined,
       s5s5_b9: formData.get("s5s5_b9") as string,
-      s5s5_yb: s5s5_ybVal
+      s5s5_yb: parentId
     };
 
     try {
@@ -92,62 +118,84 @@ const { postSlug } = Astro.props;
 
       if (error) {
         if (isInputError(error)) {
-          Object.entries(error.fields).forEach(([fieldName, messages]) => {
-            showFieldError(fieldName, messages as string[]);
+          // 处理字段验证错误
+          Object.entries(error.fields).forEach(([field, msgs]) => {
+            showFieldError(field, msgs as string[]);
           });
         } else {
-          globalError!.style.display = "block";
-          globalError!.innerText = "提交失败: " + error.message;
+          // 处理全局错误 (如数据库连接失败)
+          showGlobalError("提交失败: " + error.message);
         }
       } else {
-        form.reset();
+        // 成功
+        elements.form.reset();
         window.location.reload();
       }
     } catch (err) {
-      console.error("Unexpected error:", err);
-      globalError!.style.display = "block";
-      globalError!.innerText = "发生了意外错误。";
+      console.error("Critical error:", err);
+      showGlobalError("发生了意外错误，请稍后重试。");
     } finally {
-      submitBtn.disabled = false;
-      submitBtn.innerText = "提交评论";
+      setSubmitting(false);
     }
-  });
+  }
 
-  // 1. 监听所有回复按钮（委托模式）
-  document.addEventListener("click", (e) => {
-    const btn = (e.target as HTMLButtonElement)?.closest(".comment-reply-btn");
+  /**
+   * 3. 处理点击“回复”按钮
+   */
+  function handleReplyClick(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    // 查找最近的带 .comment-reply-btn 类的按钮
+    const btn = target.closest(".comment-reply-btn") as HTMLButtonElement;
+
     if (!btn) return;
 
-    const commentId = (btn as HTMLButtonElement | null)?.dataset?.commentId;
-    const commentAuthor = (btn as HTMLButtonElement | null)?.dataset
-      ?.commentAuthor;
-    parentIdInput.value = commentId ?? ""; // 设置为回复某条评论
-    textarea.value = `@${commentAuthor} `; // 提示回复对象
-    replyTitle.innerText = `回复给 ${commentAuthor}`;
-    replyTitle.style.display = "block";
+    const { commentId, commentAuthor } = btn.dataset;
 
-    // 视觉反馈：将表单移动到当前回复按钮下方
-    btn.insertAdjacentElement("afterend", form);
-    cancelBtn.style.display = "inline";
-    textarea.focus();
-  });
+    // 设置表单状态
+    elements.parentIdInput.value = commentId || "";
+    elements.textarea.value = `@${commentAuthor} `;
+    elements.replyTitle.innerText = `回复给 ${commentAuthor}`;
 
-  // 2. 取消回复（回到主文章回复状态）
-  cancelBtn.addEventListener("click", () => {
-    parentIdInput.value = ""; // 清空，表示回复主文章
-    textarea.value = "";
-    replyTitle.innerText = "";
-    document.getElementById("comment-section")?.appendChild(form); // 移回底部
-    replyTitle.style.display = "none";
-    cancelBtn.style.display = "none";
-  });
+    // UI 变更
+    elements.replyTitle.style.display = "block";
+    elements.cancelBtn.style.display = "inline";
 
-  function clearErrors() {
-    globalError!.style.display = "none";
-    globalError!.innerText = "";
-    document.querySelectorAll(".error").forEach((el) => {
-      if (el.id !== "global-error") el.innerHTML = "";
-    });
+    // 将表单移动到回复按钮下方
+    btn.insertAdjacentElement("afterend", elements.form);
+
+    // 聚焦输入框
+    elements.textarea.focus();
+  }
+
+  /**
+   * 4. 重置回复状态 (回到主楼)
+   */
+  function resetReplyState() {
+    elements.parentIdInput.value = "";
+    elements.textarea.value = "";
+    elements.replyTitle.innerText = "";
+
+    elements.replyTitle.style.display = "none";
+    elements.cancelBtn.style.display = "none";
+
+    // 将表单移回最底部的容器
+    elements.container?.appendChild(elements.form);
+  }
+
+  // --- UI 辅助函数 ---
+
+  function setSubmitting(isSubmitting: boolean) {
+    if (elements.submitBtn) {
+      elements.submitBtn.disabled = isSubmitting;
+      elements.submitBtn.innerText = isSubmitting ? "提交中..." : "提交评论";
+    }
+  }
+
+  function showGlobalError(msg: string) {
+    if (elements.globalError) {
+      elements.globalError.style.display = "block";
+      elements.globalError.innerText = msg;
+    }
   }
 
   function showFieldError(fieldName: string, messages: string[]) {
@@ -155,6 +203,17 @@ const { postSlug } = Astro.props;
     if (errorEl) {
       errorEl.innerText = messages.join(", ");
     }
+  }
+
+  function clearErrors() {
+    if (elements.globalError) {
+      elements.globalError.style.display = "none";
+      elements.globalError.innerText = "";
+    }
+    // 清空所有字段错误
+    document.querySelectorAll(".error").forEach((el) => {
+      if (el.id !== "global-error") el.innerHTML = "";
+    });
   }
 </script>
 

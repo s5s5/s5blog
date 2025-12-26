@@ -1,7 +1,10 @@
 {
   "name": "s5blog",
   "compatibility_date": "2025-10-08",
-  "compatibility_flags": ["nodejs_compat", "nodejs_compat_populate_process_env"],
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_compat_populate_process_env"
+  ],
   "main": "./dist/_worker.js/index.js",
   "assets": {
     "directory": "./dist",
@@ -19,5 +22,10 @@
       "database_id": "ea67f3b3-95e7-4b80-bcb1-78ca81201d21",
       "remote": true
     }
-  ]
+  ],
+  "vars": {
+    "BETTER_AUTH_URL": "https://s5blog.s5.workers.dev",
+    "PUBLIC_BETTER_AUTH_URL": "https://s5blog.s5.workers.dev",
+    "GOOGLE_CLIENT_ID": "536804483838-5ifr6jf5nutbr9c357nlla213k7d5ibi.apps.googleusercontent.com"
+  }
 }

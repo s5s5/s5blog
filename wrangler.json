@@ -25,7 +25,6 @@
   ],
   "vars": {
     "BETTER_AUTH_URL": "https://s5blog.s5.workers.dev",
-    "PUBLIC_BETTER_AUTH_URL": "https://s5blog.s5.workers.dev",
     "GOOGLE_CLIENT_ID": "536804483838-5ifr6jf5nutbr9c357nlla213k7d5ibi.apps.googleusercontent.com"
   }
 }

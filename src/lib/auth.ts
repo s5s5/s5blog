@@ -3,11 +3,15 @@ import { betterAuth } from "better-auth";
 
 export const auth = betterAuth({
   // 不配置 database 字段
+  // for Cloudflare Workers or other serverless environments
+  secret: process.env.BETTER_AUTH_SECRET,
 
   socialProviders: {
     google: {
-      clientId: import.meta.env.GOOGLE_CLIENT_ID,
-      clientSecret: import.meta.env.GOOGLE_CLIENT_SECRET
+      // clientId: import.meta.env.GOOGLE_CLIENT_ID,
+      // clientSecret: import.meta.env.GOOGLE_CLIENT_SECRET
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
     }
   },
 

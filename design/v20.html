@@ -854,6 +854,7 @@
         font-family: var(--font-pixel12);
         font-size: 12px;
         letter-spacing: 1px;
+        list-style-type: none;
       }
       .comment-head {
         display: flex;
@@ -1249,19 +1250,15 @@
           <div class="cell-pad cell-alt">
             <div class="link-grid">
               <div class="link-box">
-                <img src="./88x31-1.png" alt="88x31 Button" />
+                <img src="./88x31_1.png" alt="88x31 Button" />
               </div>
               <div class="link-box">
-                <img src="./88x31-2.png" alt="88x31 Button 2" />
+                <img src="./88x31_2.png" alt="88x31 Button 2" />
               </div>
-              <div class="link-box">
-                <div class="scanlines"></div>
-                <span>[Link Here]</span>
-              </div>
-              <div class="link-box">
-                <div class="scanlines"></div>
-                <span>[Link Here]</span>
-              </div>
+              <!--              <div class="link-box">-->
+              <!--                <div class="scanlines"></div>-->
+              <!--                <span>[Link Here]</span>-->
+              <!--              </div>-->
             </div>
           </div>
         </section>
@@ -1322,7 +1319,7 @@
       const posts = [
         {
           title: "探索数字边界",
-          date: "2024-10-25",
+          date: "2024-10-25 12:34",
           cat: "First Category",
           weather: "Lightning",
           excerpt:
@@ -1330,7 +1327,7 @@
         },
         {
           title: "信息的架构",
-          date: "2024-10-24",
+          date: "2024-10-24 12:34",
           cat: "First Category",
           weather: "Fog",
           excerpt:
@@ -1338,7 +1335,7 @@
         },
         {
           title: "午夜编程时光",
-          date: "2024-10-23",
+          date: "2024-10-23 12:34",
           cat: "First Category",
           weather: "Rain",
           excerpt:
@@ -1346,21 +1343,21 @@
         },
         {
           title: "阴天随笔",
-          date: "2024-10-22",
+          date: "2024-10-22 12:34",
           cat: "Life",
           weather: "Overcast",
           excerpt: "一个灰色的下午，适合思考和发呆。"
         },
         {
           title: "多云转晴",
-          date: "2024-10-21",
+          date: "2024-10-21 12:34",
           cat: "Design",
           weather: "Cloudy",
           excerpt: "云层的变化给天空带来了丰富的层次感。"
         },
         {
           title: "复古游戏复兴",
-          date: "2024-10-22",
+          date: "2024-10-22 12:34",
           cat: "First Category",
           weather: "Sunny",
           excerpt:
@@ -1368,7 +1365,7 @@
         },
         {
           title: "Markdown 样式全功能展示",
-          date: "2024-10-20",
+          date: "2024-10-20 12:34",
           cat: "Docs",
           weather: "Snow",
           comments: [
@@ -1476,14 +1473,16 @@
         return comments
           .map(
             (c) => `
-            <div class="comment-item">
-                <div class="comment-head">
-                    <span class="comment-user">${c.user} ${c.isAuthor ? '<span class="comment-author-badge">AUTHOR</span>' : ""}</span>
-                    <span class="comment-date">${c.date}</span>
-                </div>
-                <div class="comment-body">${c.content}</div>
-                ${c.replies && c.replies.length > 0 ? `<div class="comment-replies">${renderComments(c.replies)}</div>` : ""}
-            </div>
+            <li class="comment-item">
+                <article>
+                    <footer class="comment-head">
+                        <span class="comment-user">${c.user} ${c.isAuthor ? '<span class="comment-author-badge">AUTHOR</span>' : ""}</span>
+                        <span class="comment-date">${c.date}</span>
+                    </footer>
+                    <p class="comment-body">${c.content}</p>
+                </article>
+                ${c.replies && c.replies.length > 0 ? `<ol class="comment-replies">${renderComments(c.replies)}</ol>` : ""}
+            </li>
         `
           )
           .join("");
@@ -1497,16 +1496,16 @@
         let commentsHTML = "";
         if (post.comments) {
           commentsHTML = `
-                <div class="comment-section">
-                    <div class="comment-title">// 评论列表 (${post.comments.length})</div>
-                    ${renderComments(post.comments)}
+                <section class="comment-section">
+                    <h2 class="comment-title">// 评论列表 (${post.comments.length})</h2>
+                    <ol>${renderComments(post.comments)}</ol>
                     <form class="comment-form">
                         <div class="form-label">LEAVE A REPLY:</div>
                         <textarea class="form-input" style="width:100%; margin-bottom:8px; height:60px;" placeholder="Your Message..."></textarea>
                         <div class="form-row"><input type="text" class="form-input" placeholder="Name"><input type="email" class="form-input" placeholder="Email"></div>
                         <div class="form-row"><input type="url" class="form-input" placeholder="Website (http://)"><button type="submit" class="form-submit">发表评论</button></div>
                     </form>
-                </div>
+                </section>
             `;
         }
 

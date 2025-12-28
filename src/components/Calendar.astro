@@ -1,0 +1,170 @@
+---
+
+---
+
+<section>
+  <h3 class="module-header">:: CALENDAR</h3>
+  <div class="cell-pad" style="padding: 10px 8px">
+    <div class="calendar-wrapper">
+      <div class="cal-nav">
+        <button type="button" class="cal-btn">&lt;</button>
+        <span style="font-weight: bold">DEC 2025</span>
+        <button type="button" class="cal-btn">&gt;</button>
+      </div>
+      <nav aria-label="Calendar Navigation">
+        <table class="cal-table">
+          <thead>
+            <tr>
+              <td>S</td>
+              <td>M</td>
+              <td>T</td>
+              <td>W</td>
+              <td>T</td>
+              <td>F</td>
+              <td>S</td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cal-outside"> 30 </td>
+              <td>1</td>
+              <td>2</td>
+              <td>3</td>
+              <td>4</td>
+              <td class="cal-has-post">5</td>
+              <td>6</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>8</td>
+              <td>9</td>
+              <td>10</td>
+              <td>11</td>
+              <td class="cal-has-post">12</td>
+              <td>13</td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td>15</td>
+              <td>16</td>
+              <td>17</td>
+              <td>18</td>
+              <td class="cal-has-post">19</td>
+              <td>20</td>
+            </tr>
+            <tr>
+              <td>21</td>
+              <td>22</td>
+              <td class="cal-has-post">23</td>
+              <td>24</td>
+              <td class="cal-has-post">25</td>
+              <td class="cal-today">26</td>
+              <td>27</td>
+            </tr>
+            <tr>
+              <td>28</td>
+              <td>29</td>
+              <td>30</td>
+              <td>31</td>
+              <td class="cal-outside"> 1 </td>
+              <td class="cal-outside cal-has-post"> 2 </td>
+              <td class="cal-outside"> 3 </td>
+            </tr>
+          </tbody>
+        </table>
+      </nav>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Calendar */
+  .calendar-wrapper {
+    background: var(--cell-bg-alt);
+    border: 1px solid var(--cell-bg);
+    border-right-color: var(--container-bg);
+    border-bottom-color: var(--container-bg);
+    padding: 6px;
+    font-family: var(--font-mono);
+  }
+  .cal-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    background: var(--text-main);
+    color: var(--cell-bg);
+    padding: 2px;
+    border: 1px solid var(--border-color);
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  .cal-btn {
+    background: var(--container-bg);
+    border: 1px solid var(--cell-bg);
+    border-right-color: var(--text-main);
+    border-bottom-color: var(--text-main);
+    color: var(--cell-bg);
+    font-size: 9px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .cal-btn:hover {
+    background: var(--link-hover);
+  }
+  .cal-btn:active {
+    border: 1px solid var(--text-main);
+    border-right-color: var(--cell-bg);
+    border-bottom-color: var(--cell-bg);
+    background: var(--text-muted);
+  }
+  .cal-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 2px;
+    font-size: 9px;
+    text-align: center;
+  }
+  .cal-table th {
+    font-weight: normal;
+    color: var(--text-muted);
+    font-size: 8px;
+  }
+  .cal-table td {
+    background: var(--cell-bg);
+    border: 1px solid var(--cell-bg);
+    border-right-color: var(--container-bg);
+    border-bottom-color: var(--container-bg);
+    color: var(--text-main);
+    padding: 2px;
+  }
+  .cal-table td.cal-today {
+    background: var(--highlight);
+    color: var(--highlight-text);
+    font-weight: bold;
+    border: 1px solid var(--border-color);
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+  }
+  .cal-table td.cal-outside {
+    color: var(--text-muted);
+    border-color: var(--container-bg);
+    border: none;
+  }
+  .cal-table td.cal-has-post {
+    background-color: var(--link-color);
+    color: var(--cell-bg);
+    font-weight: bold;
+    border: 1px solid var(--text-main);
+    opacity: 0.8;
+    cursor: pointer;
+  }
+  .cal-table td.cal-has-post:hover {
+    background-color: var(--link-hover);
+    border-color: var(--cell-bg-alt);
+    color: var(--cell-bg-alt);
+  }
+</style>

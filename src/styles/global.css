@@ -140,3 +140,87 @@ textarea {
   font-family: inherit;
   outline: none;
 }
+
+/* =========================================
+   3. LAYOUT (Grid System)
+   ========================================= */
+.container {
+  width: 100%;
+  max-width: 1111px;
+  margin: 0 auto;
+  background-color: var(--container-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  display: grid;
+  grid-template-columns: 160px 1fr 220px;
+  gap: 1px;
+}
+
+.cell {
+  background-color: var(--cell-bg);
+  overflow: hidden;
+}
+.cell-pad {
+  padding: 12px;
+}
+.cell-alt {
+  background-color: var(--cell-bg-alt);
+}
+
+.layout-sidebar-l {
+  display: flex;
+  flex-direction: column;
+}
+.layout-main {
+  display: flex;
+  flex-direction: column;
+}
+.layout-sidebar-r {
+  display: flex;
+  flex-direction: column;
+}
+
+/* LAYOUT Responsive */
+@media (max-width: 800px) {
+  body {
+    padding: 0;
+  }
+  .container {
+    border: none;
+    box-shadow: none;
+    grid-template-columns: 1fr;
+    gap: 1px;
+  }
+  .layout-main {
+    order: 2;
+  }
+  .layout-sidebar-r {
+    order: 3;
+  }
+  .layout-sidebar-l {
+    order: 4;
+  }
+}
+
+/* Modules */
+.module-header {
+  background: var(--cell-bg-alt);
+  background-image: linear-gradient(
+    to bottom,
+    var(--cell-bg),
+    var(--cell-bg-alt)
+  );
+  padding: 6px 8px;
+  font-size: 10px;
+  font-weight: normal;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  border-top: 1px solid var(--container-bg);
+  border-bottom: 1px solid var(--container-bg);
+  letter-spacing: 1px;
+  margin-top: 1px;
+}
+aside section:first-child .module-header {
+  margin-top: 0;
+  border-top: none;
+}

@@ -1,0 +1,62 @@
+---
+
+---
+
+<section>
+  <h3 class="module-header">:: LINK</h3>
+  <div class="cell-pad cell-alt">
+    <div class="link-grid">
+      <div class="link-box">
+        <img src="./88x31_1.png" alt="88x31 Button" />
+      </div>
+      <div class="link-box">
+        <img src="./88x31_2.png" alt="88x31 Button 2" />
+      </div>
+      <!--<div class="link-box">-->
+      <!--  <div class="scanlines"></div>-->
+      <!--  <span>[Link Here]</span>-->
+      <!--</div>-->
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Link Grid */
+  .link-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    justify-items: center;
+  }
+  .link-box {
+    background: var(--cell-bg-alt);
+    width: 88px;
+    height: 31px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: var(--text-muted);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .link-box img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 2px,
+      var(--pattern-col) 2px,
+      var(--pattern-col) 4px
+    );
+    pointer-events: none;
+    border: 1px solid var(--container-bg);
+  }
+</style>

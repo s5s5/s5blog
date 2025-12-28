@@ -1,0 +1,118 @@
+---
+
+---
+
+<section>
+  <h3 class="module-header">:: MUSIC</h3>
+  <div class="cell-pad pod-container">
+    <div class="pod-player">
+      <div class="pod-screen">
+        <marquee scrollamount="2">Song: Lofi_Dream.mp3</marquee>
+      </div>
+      <div class="pod-wheel">
+        <div class="pod-control-icon pod-top">MENU</div>
+        <button
+          type="button"
+          class="pod-control-icon pod-bottom pod-active-btn"
+        >
+          ||
+        </button>
+        <button type="button" class="pod-control-icon pod-left pod-active-btn">
+          |&lt;
+        </button>
+        <button type="button" class="pod-control-icon pod-right pod-active-btn">
+          &gt;|
+        </button>
+        <div class="pod-btn-center"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Pod Player */
+  .pod-container {
+    background: var(--cell-bg-alt);
+    padding: 10px;
+  }
+  .pod-player {
+    background: var(--cell-bg);
+    border: 1px solid var(--container-bg);
+    border-radius: 4px;
+    padding: 10px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+    text-align: center;
+  }
+  .pod-screen {
+    background: var(--cell-bg-alt);
+    border: 1px solid var(--container-bg);
+    border-radius: 2px;
+    padding: 6px;
+    margin-bottom: 10px;
+    font-family: var(--font-pixel10);
+    font-size: 10px;
+    color: var(--text-muted);
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  .pod-wheel {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--cell-bg-alt);
+    border: 1px solid var(--container-bg);
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pod-btn-center {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--cell-bg);
+    border: 1px solid var(--container-bg);
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  .pod-control-icon {
+    position: absolute;
+    font-size: 8px;
+    color: var(--text-muted);
+    font-family: var(--font-pixel8);
+  }
+  .pod-active-btn {
+    background-color: transparent;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+  }
+  .pod-active-btn:hover {
+    background-color: var(--cell-bg);
+    border: 1px solid var(--container-bg);
+    font-weight: bold;
+  }
+  .pod-top {
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .pod-bottom {
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .pod-left {
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .pod-right {
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+</style>

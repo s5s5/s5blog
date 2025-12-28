@@ -1,0 +1,92 @@
+---
+
+---
+
+<section>
+  <h3 class="module-header">:: STATS</h3>
+  <div class="cell-pad">
+    <div class="stat-label">VISITORS</div>
+    <div class="counter-box">
+      <span class="counter-digit">0</span><span class="counter-digit">8</span
+      ><span class="counter-digit">4</span>
+      <span class="counter-digit">2</span><span class="counter-digit">1</span
+      ><span class="counter-digit">9</span>
+    </div>
+    <div style="margin-top: 8px">
+      <div class="stat-row">
+        <span>ONLINE:</span><span class="stat-value highlight">12</span>
+      </div>
+      <div class="stat-row">
+        <span>TODAY:</span><span class="stat-value">143</span>
+      </div>
+      <div class="stat-row">
+        <span>SINCE:</span><span class="stat-value">2003</span>
+      </div>
+    </div>
+    <div class="status-dots">
+      <div class="status-dot" style="background: #f90" title="Firefox"></div>
+      <div class="status-dot" style="background: #09c" title="IE"></div>
+      <div class="status-dot" style="background: #d00" title="Opera"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Stats */
+  .stat-label {
+    text-align: center;
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    font-family: var(--font-mono);
+  }
+  .counter-box {
+    display: flex;
+    gap: 2px;
+    justify-content: center;
+    background: var(--cell-bg);
+    padding: 4px;
+    border: 1px solid var(--container-bg);
+    margin-bottom: 8px;
+  }
+  .counter-digit {
+    background: var(--cell-bg);
+    color: var(--text-main);
+    font-family: var(--font-mono);
+    font-weight: bold;
+    font-size: 11px;
+    width: 16px;
+    text-align: center;
+    border: 1px solid var(--container-bg);
+    border-bottom: 2px solid var(--container-bg);
+    border-radius: 2px;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    border-bottom: 1px dotted var(--container-bg);
+    padding: 2px 0;
+  }
+  .stat-value {
+    font-weight: bold;
+    color: var(--text-main);
+  }
+  .stat-value.highlight {
+    color: var(--link-hover);
+  }
+  .status-dots {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 8px;
+    opacity: 0.4;
+  }
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+</style>

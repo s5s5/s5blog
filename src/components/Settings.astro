@@ -1,0 +1,62 @@
+---
+
+---
+
+<section>
+  <h3 class="module-header">:: SETTINGS</h3>
+  <div class="cell-pad">
+    <button type="button" id="theme-toggle" class="theme-btn">
+      THEME: LIGHT
+    </button>
+  </div>
+</section>
+
+<script>
+  // --- THEME LOGIC ---
+  const themeBtn = document.getElementById("theme-toggle");
+  const htmlEl = document.documentElement;
+  let currentThemeMode = localStorage.getItem("themeMode");
+
+  if (!currentThemeMode) {
+    const systemDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+    currentThemeMode = systemDark ? "dark" : "light";
+  }
+
+  function applyTheme() {
+    if (currentThemeMode === "dark") {
+      htmlEl.setAttribute("data-theme", "dark");
+    } else {
+      htmlEl.removeAttribute("data-theme");
+    }
+    themeBtn.innerText = "THEME: " + currentThemeMode.toUpperCase();
+    setTimeout(redrawAllCanvases, 50);
+  }
+
+  themeBtn.addEventListener("click", () => {
+    // Toggle only between light and dark
+    currentThemeMode = currentThemeMode === "light" ? "dark" : "light";
+    localStorage.setItem("themeMode", currentThemeMode);
+    applyTheme();
+  });
+</script>
+
+<style>
+  /* Theme Toggle */
+  .theme-btn {
+    width: 100%;
+    background: var(--cell-bg);
+    border: 1px solid var(--container-bg);
+    color: var(--text-main);
+    padding: 4px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .theme-btn:hover {
+    background: var(--highlight);
+    color: var(--highlight-text);
+    border-color: var(--border-color);
+  }
+</style>

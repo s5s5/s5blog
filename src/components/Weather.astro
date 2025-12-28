@@ -1,0 +1,412 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+type Props = {
+  post: CollectionEntry<"blog">;
+};
+
+const { post } = Astro.props;
+
+const weatherMap = {
+  Lightning: "闪电",
+  Fog: "雾",
+  Rain: "雨",
+  Sunny: "晴",
+  Snow: "雪",
+  Overcast: "阴",
+  Cloudy: "多云"
+};
+const canvasId = `hero-canvas-${post.id}`;
+const weatherCN = weatherMap[post.weather] || "";
+const weatherLabel = post.weather
+  ? `${weatherCN} ${post.weather.toUpperCase()}`
+  : post.cat;
+---
+
+<figure class="post-hero">
+  <canvas
+    id={"hero-canvas-1"}
+    class="post-canvas"
+    data-weather={post.weather ?? "Lightning"}></canvas>
+  <figcaption class="post-weather">
+    {weatherLabel ?? "闪电 LIGHTNING"}
+  </figcaption>
+</figure>
+
+<script>
+  function redrawAllCanvases() {
+    const canvas = document.getElementById(`hero-canvas-1`);
+    if (canvas) {
+      if (canvas.parentElement.offsetWidth === 0) return;
+
+      // let wType = (post.weather || "Sunny").toLowerCase();
+      let wType = "LIGHTNING".toLowerCase();
+      if (wType === "rain") wType = "rainy";
+      if (wType === "snow") wType = "snowy";
+      if (wType === "fog") wType = "foggy";
+
+      const colors = {
+        bg: getCSSVal("--canvas-bg"),
+        line: getCSSVal("--canvas-line"),
+        accent: getCSSVal("--canvas-accent")
+      };
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.parentElement.getBoundingClientRect();
+
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+
+      // Disable smoothing for sharp pixels
+      ctx.imageSmoothingEnabled = false;
+
+      drawDinoStyleScene(ctx, rect.width, rect.height, wType, colors);
+    }
+  }
+
+  function drawDinoStyleScene(ctx, w, h, weather, colors) {
+    // Clear
+    ctx.fillStyle = colors.bg;
+    ctx.fillRect(0, 0, w, h);
+
+    // Ground Line
+    const groundY = h - 20;
+    ctx.fillStyle = colors.line;
+    ctx.fillRect(0, groundY, w, 1);
+
+    // Ground Noise
+    for (let i = 0; i < w; i += 10) {
+      if (Math.random() > 0.6) {
+        const nw = Math.random() * 4 + 1;
+        ctx.fillRect(i, groundY + 2 + Math.random() * 5, nw, 1);
+      }
+    }
+
+    // Weather & Sky
+    drawRetroWeather(ctx, w, h, weather, colors);
+
+    // Scenery
+    const numProps = 2 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < numProps; i++) {
+      let px = Math.random() * w;
+      const ph = 10 + Math.random() * 15;
+      const pw = 6 + Math.random() * 6;
+      ctx.fillStyle = colors.line;
+      ctx.fillRect(px, groundY - ph, pw, ph);
+      if (Math.random() > 0.5) {
+        ctx.fillRect(px - 3, groundY - ph + 5, 3, 4);
+        ctx.fillRect(px - 3, groundY - ph + 2, 1, 3);
+      }
+    }
+
+    // Entities (1-6)
+    const entityCount = 1 + Math.floor(Math.random() * 6);
+    const types = ["human", "dog", "cat", "chicken", "bird"];
+
+    let positions = [];
+    // First entity in hero zone
+    positions.push({
+      x: w * 0.2,
+      type: types[Math.floor(Math.random() * types.length)]
+    });
+
+    for (let i = 1; i < entityCount; i++) {
+      positions.push({
+        x: Math.random() * (w - 40) + 20,
+        type: types[Math.floor(Math.random() * types.length)]
+      });
+    }
+
+    // UFOs
+    const ufoCount = 1 + Math.floor(Math.random() * 2);
+    for (let i = 0; i < ufoCount; i++) {
+      drawUFO(ctx, Math.random() * w, Math.random() * (h * 0.3), colors.line);
+    }
+
+    positions.forEach((ent, i) => {
+      const isFirst = i === 0;
+      const color = isFirst ? colors.accent : colors.line;
+      drawPixelEntity(ctx, ent.x, groundY, color, ent.type);
+    });
+  }
+
+  function drawUFO(ctx, x, y, color) {
+    ctx.fillStyle = color;
+    const size = 3;
+    ctx.fillRect(x + 2 * size, y, 4 * size, 2 * size);
+    ctx.fillRect(x, y + 2 * size, 8 * size, 2 * size);
+    ctx.clearRect(x + 1 * size, y + 3 * size, size, size / 2);
+    ctx.clearRect(x + 3 * size, y + 3 * size, size, size / 2);
+    ctx.clearRect(x + 6 * size, y + 3 * size, size, size / 2);
+  }
+
+  function drawPixelEntity(ctx, x, y, color, type) {
+    const size = 3;
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = size;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    // Helper rect
+    const r = (dx, dy, w, h) =>
+      ctx.fillRect(x + dx * size, y - dy * size, w * size, h * size);
+
+    if (type === "human") {
+      // Stick Figure
+      const pose = Math.floor(Math.random() * 3); // 0=Stand, 1=Run, 2=Run
+      const facingRight = Math.random() > 0.5;
+      const dir = facingRight ? 1 : -1;
+
+      const headCx = x + 2.5 * size;
+      const headCy = y - 11 * size;
+      const neckY = headCy + 1.5 * size;
+      const hipY = y - 5 * size;
+
+      // 1. Head (Circle)
+      ctx.beginPath();
+      ctx.arc(headCx, headCy, 1.5 * size, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 2. Body (Line)
+      ctx.beginPath();
+      // If running, lean body forward
+      const lean = pose > 0 ? dir * 2 * size : 0;
+      ctx.moveTo(headCx + lean, neckY);
+      ctx.lineTo(headCx, hipY);
+      ctx.stroke();
+
+      const shoulderX = headCx + lean;
+      const shoulderY = neckY + 1 * size;
+
+      // 3. Limbs (Polylines)
+      if (pose === 0) {
+        // Standing
+        // Legs together (Single line or close)
+        ctx.beginPath();
+        ctx.moveTo(headCx, hipY);
+        ctx.lineTo(headCx, y);
+        ctx.stroke();
+
+        // Arms: One pointing
+        ctx.beginPath();
+        if (Math.random() > 0.5) {
+          // Right arm points right
+          ctx.moveTo(shoulderX, shoulderY);
+          ctx.lineTo(shoulderX + 6 * size, shoulderY);
+          // Left arm down
+          ctx.moveTo(shoulderX, shoulderY);
+          ctx.lineTo(shoulderX - 2 * size, y - 8 * size);
+        } else {
+          // Left arm points left
+          ctx.moveTo(shoulderX, shoulderY);
+          ctx.lineTo(shoulderX - 6 * size, shoulderY);
+          // Right arm down
+          ctx.moveTo(shoulderX, shoulderY);
+          ctx.lineTo(shoulderX + 2 * size, y - 8 * size);
+        }
+        ctx.stroke();
+      } else {
+        // Running (Pose 1 or 2)
+        // Legs Bent & Wide
+        ctx.beginPath();
+        // Back leg
+        ctx.moveTo(headCx, hipY);
+        ctx.lineTo(headCx - dir * 3 * size, hipY + 2 * size); // Knee back/up
+        ctx.lineTo(headCx - dir * 4 * size, y - 2 * size); // Foot back
+        // Front leg
+        ctx.moveTo(headCx, hipY);
+        ctx.lineTo(headCx + dir * 2 * size, hipY + 1 * size); // Knee fwd
+        ctx.lineTo(headCx + dir * 2 * size, y); // Foot ground
+        ctx.stroke();
+
+        // Arms Swinging
+        ctx.beginPath();
+        // Front Arm Up
+        ctx.moveTo(shoulderX, shoulderY);
+        ctx.lineTo(shoulderX + dir * 3 * size, shoulderY - 2 * size); // Elbow
+        ctx.lineTo(shoulderX + dir * 4 * size, shoulderY - 4 * size); // Hand
+        // Back Arm Down
+        ctx.moveTo(shoulderX, shoulderY);
+        ctx.lineTo(shoulderX - dir * 2 * size, shoulderY + 2 * size);
+        ctx.lineTo(shoulderX - dir * 4 * size, shoulderY);
+        ctx.stroke();
+      }
+    } else if (type === "dog") {
+      r(0, 6, 3, 3);
+      r(0, 8, 1, 2);
+      r(2, 6, 6, 3);
+      r(7, 7, 1, 2);
+      r(2, 3, 1, 3);
+      r(6, 3, 1, 3);
+    } else if (type === "cat") {
+      r(0, 6, 3, 3);
+      r(0, 8, 1, 2);
+      r(2, 8, 1, 2);
+      r(2, 5, 5, 3);
+      r(6, 6, 1, 4);
+      r(2, 2, 1, 2);
+      r(5, 2, 1, 2);
+    } else if (type === "chicken") {
+      r(0, 4, 2, 2);
+      r(1, 4, 1, 1);
+      r(0, 3, 3, 2);
+      r(1, 1, 1, 1);
+    } else if (type === "bird") {
+      const flyY = y - 40 - Math.random() * 20;
+      ctx.fillRect(x, flyY, 4 * size, 1 * size);
+      ctx.fillRect(x + 1 * size, flyY - 1 * size, 1 * size, 3 * size);
+      ctx.fillRect(x + 3 * size, flyY, 1 * size, 1 * size);
+    }
+
+    ctx.beginPath(); // Reset path
+  }
+
+  function drawRetroWeather(ctx, w, h, weather, colors) {
+    ctx.fillStyle = colors.line;
+
+    if (weather === "sunny") {
+      const sunX = w - 50;
+      const sunY = 40;
+      ctx.fillStyle = colors.accent;
+      ctx.fillRect(sunX, sunY, 12, 12);
+
+      // Rays detached (gap of 3px)
+      const gap = 4;
+      ctx.fillRect(sunX + 5, sunY - 6 - gap, 2, 3);
+      ctx.fillRect(sunX + 5, sunY + 15 + gap, 2, 3);
+      ctx.fillRect(sunX - 6 - gap, sunY + 5, 3, 2);
+      ctx.fillRect(sunX + 15 + gap, sunY + 5, 3, 2);
+
+      // Diagonals detached
+      const diagGap = 3;
+      ctx.fillRect(sunX - 3 - diagGap, sunY - 3 - diagGap, 2, 2);
+      ctx.fillRect(sunX + 13 + diagGap, sunY - 3 - diagGap, 2, 2);
+      ctx.fillRect(sunX - 3 - diagGap, sunY + 13 + diagGap, 2, 2);
+      ctx.fillRect(sunX + 13 + diagGap, sunY + 13 + diagGap, 2, 2);
+    }
+
+    if (weather === "rainy") {
+      ctx.fillStyle = colors.line;
+      for (let i = 0; i < 40; i++) {
+        const rx = Math.random() * w;
+        const ry = Math.random() * h;
+        ctx.fillRect(rx, ry, 1, 6);
+      }
+    }
+
+    if (weather === "snowy") {
+      // Use line color for snow in light mode so it's visible, or accent if needed.
+      // But usually snow is white. If bg is light, white is invisible.
+      // Let's use a light grey or the line color with opacity?
+      // Actually user requested "white snow" before, but then "canvas drawing not good".
+      // Let's use 'colors.line' but small dots for contrast, or stick to white if dark mode.
+      const isDark = colors.bg === "#202124" || colors.bg === "#111";
+      ctx.fillStyle = isDark ? "#fff" : "#ccc";
+      for (let i = 0; i < 60; i++) {
+        const sx = Math.random() * w;
+        const sy = Math.random() * h;
+        ctx.fillRect(sx, sy, 2, 2);
+      }
+    }
+
+    if (weather === "cloudy") {
+      const cloudCount = 6;
+      ctx.fillStyle = colors.line;
+      ctx.globalAlpha = 0.2;
+      for (let i = 0; i < cloudCount; i++) {
+        let cx = Math.random() * w;
+        let cy = Math.random() * (h / 2);
+        let cw = 30 + Math.random() * 20;
+        ctx.fillRect(cx, cy, cw, 10);
+        ctx.fillRect(cx + 10, cy - 8, cw - 15, 8);
+        ctx.fillRect(cx + 5, cy + 5, cw - 10, 5);
+      }
+      ctx.globalAlpha = 1.0;
+    }
+
+    if (weather === "overcast") {
+      ctx.fillStyle = colors.line;
+      ctx.globalAlpha = 0.4;
+      // Increased lines to 32 (Doubled from 16)
+      for (let i = 0; i < 32; i++) {
+        const ly = 10 + Math.random() * (h * 0.3);
+        const lx = Math.random() * w;
+        const lw = 20 + Math.random() * 60;
+        ctx.fillRect(lx, ly, lw, 2);
+      }
+      ctx.globalAlpha = 1.0;
+    }
+
+    if (weather === "lightning") {
+      ctx.strokeStyle = colors.accent;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      let lx = Math.random() * w;
+      let ly = 0;
+      ctx.moveTo(lx, ly);
+      while (ly < h - 20) {
+        lx += (Math.random() - 0.5) * 30;
+        ly += 20;
+        ctx.lineTo(lx, ly);
+      }
+      ctx.stroke();
+    }
+
+    if (weather === "foggy") {
+      ctx.fillStyle = colors.line;
+      ctx.globalAlpha = 0.1;
+      for (let x = 0; x < w; x += 4) {
+        ctx.fillRect(x, 0, 1, h);
+      }
+      ctx.globalAlpha = 1.0;
+    }
+  }
+
+  function getCSSVal(name) {
+    return getComputedStyle(document.documentElement)
+      .getPropertyValue(name)
+      .trim();
+  }
+
+  redrawAllCanvases();
+</script>
+
+<style>
+  .post-hero {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+    background: var(--cell-bg-alt);
+    border-bottom: 1px solid var(--container-bg);
+  }
+  .post-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+    filter: none;
+  }
+  .post-canvas:hover {
+    filter: hue-rotate(185deg);
+  }
+  .post-weather {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--text-main);
+    color: var(--cell-bg);
+    padding: 3px 10px;
+    font-size: 10px;
+    font-family: var(--font-pixel10);
+    border: 1px solid var(--cell-bg);
+    z-index: 2;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+  }
+</style>

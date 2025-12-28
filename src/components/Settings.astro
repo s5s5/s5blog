@@ -31,7 +31,7 @@
       htmlEl.removeAttribute("data-theme");
     }
     themeBtn.innerText = "THEME: " + currentThemeMode.toUpperCase();
-    setTimeout(redrawAllCanvases, 50);
+    // setTimeout(redrawAllCanvases, 50);
   }
 
   themeBtn.addEventListener("click", () => {
@@ -40,6 +40,8 @@
     localStorage.setItem("themeMode", currentThemeMode);
     applyTheme();
   });
+
+  applyTheme();
 </script>
 
 <style>

@@ -1,11 +1,8 @@
 ---
-import { getCollection, render } from "astro:content";
-import BaseHead from "../components/BaseHead.astro";
-import Footer from "../components/Footer.astro";
-import FormattedDate from "../components/FormattedDate.astro";
-import Header from "../components/Header.astro";
+import { getCollection } from "astro:content";
 import Pagination from "../components/Pagination.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+import PostCard from "../components/PostCard.astro";
+import Layout from "../layouts/Layout.astro";
 import { calculateTotalPages, POSTS_PER_PAGE } from "../utils/pagination";
 
 const allPosts = (await getCollection("blog")).sort(
@@ -16,40 +13,11 @@ const latestPosts = allPosts.slice(0, POSTS_PER_PAGE);
 const page = 1;
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-  </head>
-  <body>
-    <Header />
-    <main>
-      <section>
-        {
-          latestPosts.map(async (post) => {
-            const { Content } = await render(post);
-            return (
-              <article>
-                <h2>
-                  <a href={`/${post.id}`}>{post.data.title}</a>
-                </h2>
-                <div>
-                  <span class="author">s5s5</span>
-                  <FormattedDate date={post.data.pubDate} />
-                  {post.data.category && (
-                    <span class="category">{post.data.category}</span>
-                  )}
-                </div>
-                <Content />
-                <hr />
-              </article>
-            );
-          })
-        }
-      </section>
-
-      <Pagination page={page} totalPages={totalPages} />
-    </main>
-    <Footer />
-  </body>
-</html>
+<Layout>
+  {
+    latestPosts.map(async (post) => {
+      return <PostCard post={post} />;
+    })
+  }
+  <Pagination page={page} totalPages={totalPages} />
+</Layout>

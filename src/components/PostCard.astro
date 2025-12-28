@@ -1,0 +1,115 @@
+---
+import { render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import FormattedDate from "./FormattedDate.astro";
+import Weather from "./Weather.astro";
+
+type Props = {
+  post: CollectionEntry<"blog">;
+};
+
+const { post } = Astro.props;
+
+const { Content } = await render(post);
+---
+
+<article class="post-card">
+  <a href={`/${post.id}`}>
+    <Weather post={post} />
+  </a>
+  <div class="post-content">
+    <header>
+      <h2 class="post-title">
+        <span class="post-title-slash">//</span>
+        <a href={`/${post.id}`}>{post.data.title}</a>
+      </h2>
+    </header>
+    <div class="post-meta">
+      POSTED ON
+      <a href={`/${post.id}`}>
+        <FormattedDate date={post.data.pubDate} />
+      </a>
+      // BY s5s5 // IN
+      <a
+        href={`/category/${post.data.category.toLowerCase().replace(" ", "-")}`}
+      >
+        {post.data.category}
+      </a>
+      //
+      <a href={`/${post.id}#comments`}>3 评论</a>
+    </div>
+    <div class="post-excerpt">
+      <Content />
+    </div>
+    <p>
+      <a href={`/${post.id}`} class="btn-read"> 阅读全文 &gt;&gt; </a>
+    </p>
+  </div>
+</article>
+
+<style>
+  /* Post & Content */
+  .post-card {
+    border-bottom: 1px solid var(--container-bg);
+    margin-bottom: 0;
+    background: var(--cell-bg);
+    padding-bottom: 20px;
+  }
+  .post-card:last-child {
+    border-bottom: none;
+  }
+  .post-content {
+    padding: 15px 20px 0 20px;
+  }
+  .post-title {
+    font-family: var(--font-pixel10);
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--text-main);
+    margin-bottom: 6px;
+  }
+  .post-title a {
+    color: var(--text-main);
+  }
+  .post-title a:hover {
+    color: var(--highlight);
+  }
+  .post-title-slash {
+    letter-spacing: -2px;
+    color: var(--canvas-accent);
+  }
+  .post-meta {
+    font-size: 9px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-bottom: 10px;
+  }
+  .post-meta a:last-child {
+    font-family: var(--font-pixel12);
+  }
+  .post-excerpt {
+    color: var(--text-muted);
+    font-family: var(--font-pixel12);
+    font-size: 12px;
+    letter-spacing: 1px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .btn-read {
+    display: inline-block;
+    background: var(--cell-bg);
+    border: 1px solid var(--container-bg);
+    color: var(--text-main);
+    padding: 3px 8px;
+    font-family: var(--font-pixel10);
+    font-size: 10px;
+    cursor: pointer;
+    box-shadow: 1px 1px 0 var(--container-bg);
+  }
+  .btn-read:hover {
+    background: var(--highlight);
+    border-color: var(--border-color);
+    color: var(--highlight-text);
+    box-shadow: 1px 1px 0 var(--border-color);
+  }
+</style>

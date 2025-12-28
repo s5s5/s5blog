@@ -1,48 +1,137 @@
 ---
-import { SITE_TITLE } from "../consts";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 import HeaderLink from "./HeaderLink.astro";
 ---
 
-<header>
-  <nav>
-    <h2><a href="/">{SITE_TITLE}</a></h2>
-    <div class="internal-links">
-      <HeaderLink href="/">Home</HeaderLink>
-      <HeaderLink href="/category/first-category">First Category</HeaderLink>
-      <HeaderLink href="/category/other">Other</HeaderLink>
-      <HeaderLink href="/about">About</HeaderLink>
-    </div>
+<header class="layout-header">
+  <div class="header-top-bar"></div>
+  <section class="site-area">
+    <h1 class="site-title">{SITE_TITLE}</h1>
+    <p class="site-description">
+      <span class="site-slash">//</span>
+      {SITE_DESCRIPTION}
+    </p>
+  </section>
+  <nav class="nav-bar" aria-label="Main Navigation">
+    <HeaderLink class="nav-btn" href="/">Home</HeaderLink>
+    <HeaderLink class="nav-btn" href="/category/first-category"
+      >First Category</HeaderLink
+    >
+    <HeaderLink class="nav-btn" href="/category/other">Other</HeaderLink>
+    <HeaderLink class="nav-btn" href="/about">About</HeaderLink>
   </nav>
 </header>
+
 <style>
-  header {
-    margin: 0;
-    padding: 0 1em;
-    background: white;
-    box-shadow: 0 2px 8px rgba(var(--black), 5%);
+  /* Header */
+  .layout-header {
+    grid-column: 1 / -1;
+    height: 90px;
+    position: relative;
+    background-color: var(--cell-bg-alt);
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 2px,
+      var(--pattern-col) 2px,
+      var(--pattern-col) 4px
+    );
   }
-  h2 {
-    margin: 0;
-    font-size: 1em;
+  .header-top-bar {
+    height: 5px;
+    background: var(--text-main);
+    border-bottom: 1px solid var(--container-bg);
+  }
+  .site-area {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 2;
+    background: var(--cell-bg);
+    padding: 5px 12px;
+    border: 1px solid var(--container-bg);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.15);
+  }
+  .site-title {
+    font-family: var(--font-pixel12);
+    font-size: 24px;
+    color: var(--text-main);
+    line-height: 1;
+  }
+  .site-description {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--font-pixel12);
+    margin-top: 6px;
+    display: block;
+    border-top: 1px solid var(--container-bg);
+    padding-top: 4px;
+  }
+  .site-slash {
+    color: var(--canvas-accent);
   }
 
-  h2 a,
-  h2 a.active {
-    text-decoration: none;
-  }
-  nav {
+  /* Nav */
+  .nav-bar {
+    position: absolute;
+    bottom: 15px;
+    right: 20px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    gap: 4px;
+    background: var(--cell-bg);
+    padding: 4px;
+    border: 1px solid var(--container-bg);
   }
-  nav a {
-    padding: 1em 0.5em;
-    color: var(--black);
-    border-bottom: 4px solid transparent;
-    text-decoration: none;
+  .nav-btn {
+    background: var(--cell-bg);
+    border: 1px solid var(--container-bg);
+    color: var(--text-main);
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    cursor: pointer;
+    box-shadow: 1px 1px 0 var(--container-bg);
+    transition: all 0s;
   }
-  nav a.active {
-    text-decoration: none;
-    border-bottom-color: var(--accent);
+  .nav-btn:hover,
+  .nav-btn.active {
+    background: var(--highlight);
+    color: var(--highlight-text);
+    border-color: var(--border-color);
+    box-shadow: 1px 1px 0 var(--border-color);
+    transform: translate(-1px, -1px);
+  }
+
+  /* Header Responsive */
+  @media (max-width: 800px) {
+    .layout-header {
+      height: auto;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 10px;
+    }
+    .header-top-bar {
+      width: 100%;
+      position: absolute;
+      top: 0;
+    }
+    .site-area {
+      position: static;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      box-shadow: none;
+    }
+    .nav-bar {
+      position: static;
+      flex-wrap: wrap;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
   }
 </style>

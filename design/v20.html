@@ -177,19 +177,6 @@
         background-color: var(--cell-bg-alt);
       }
 
-      .layout-header {
-        grid-column: 1 / -1;
-        height: 90px;
-        position: relative;
-        background-color: var(--cell-bg-alt);
-        background-image: repeating-linear-gradient(
-          45deg,
-          transparent,
-          transparent 2px,
-          var(--pattern-col) 2px,
-          var(--pattern-col) 4px
-        );
-      }
       .layout-sidebar-l {
         display: flex;
         flex-direction: column;
@@ -243,6 +230,19 @@
        ========================================= */
 
       /* Header */
+      .layout-header {
+        grid-column: 1 / -1;
+        height: 90px;
+        position: relative;
+        background-color: var(--cell-bg-alt);
+        background-image: repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 2px,
+          var(--pattern-col) 2px,
+          var(--pattern-col) 4px
+        );
+      }
       .header-top-bar {
         height: 5px;
         background: var(--text-main);
@@ -855,6 +855,8 @@
         font-size: 12px;
         letter-spacing: 1px;
         list-style-type: none;
+        position: relative;
+        padding-left: 46px;
       }
       .comment-head {
         display: flex;
@@ -862,6 +864,14 @@
         margin-bottom: 4px;
         border-bottom: 1px solid var(--cell-bg-alt);
         padding-bottom: 2px;
+      }
+      .comment-avatar {
+        object-fit: cover; /* 可选: cover | contain | fill | none | scale-down */
+        position: absolute;
+        top: 2px;
+        left: 0;
+        width: 36px;
+        height: 36px;
       }
       .comment-user {
         font-family: var(--font-pixel10);
@@ -889,7 +899,6 @@
         font-size: 12px;
       }
       .comment-replies {
-        margin-left: 25px;
         margin-top: 10px;
         padding-left: 10px;
         border-left: 1px dotted var(--container-bg);
@@ -982,7 +991,7 @@
   <body>
     <div class="container">
       <!-- HEADER -->
-      <header class="layout-header header-row">
+      <header class="layout-header">
         <div class="header-top-bar"></div>
         <section class="site-area">
           <h1 class="site-title">[米随随] s5s5</h1>
@@ -1476,6 +1485,7 @@
             <li class="comment-item">
                 <article>
                     <footer class="comment-head">
+                        <img src="./88x31-1.png" alt="" class="comment-avatar" />
                         <span class="comment-user">${c.user} ${c.isAuthor ? '<span class="comment-author-badge">AUTHOR</span>' : ""}</span>
                         <span class="comment-date">${c.date}</span>
                     </footer>

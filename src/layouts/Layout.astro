@@ -1,0 +1,91 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+
+type Props = CollectionEntry<"blog">["data"];
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={title} description={description} />
+    <style>
+      /* =========================================
+       3. LAYOUT (Grid System)
+       ========================================= */
+      .container {
+        width: 100%;
+        max-width: 1111px;
+        margin: 0 auto;
+        background-color: var(--container-bg);
+        border: 1px solid var(--border-color);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        display: grid;
+        grid-template-columns: 160px 1fr 220px;
+        gap: 1px;
+      }
+
+      .cell {
+        background-color: var(--cell-bg);
+        overflow: hidden;
+      }
+      .cell-pad {
+        padding: 12px;
+      }
+      .cell-alt {
+        background-color: var(--cell-bg-alt);
+      }
+
+      .layout-sidebar-l {
+        display: flex;
+        flex-direction: column;
+      }
+      .layout-main {
+        display: flex;
+        flex-direction: column;
+      }
+      .layout-sidebar-r {
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* LAYOUT Responsive */
+      @media (max-width: 800px) {
+        body {
+          padding: 0;
+        }
+        .container {
+          border: none;
+          box-shadow: none;
+          grid-template-columns: 1fr;
+          gap: 1px;
+        }
+        .layout-main {
+          order: 2;
+        }
+        .layout-sidebar-r {
+          order: 3;
+        }
+        .layout-sidebar-l {
+          order: 4;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <Header />
+      <aside class="cell layout-sidebar-l"></aside>
+      <main class="cell layout-main" id="main-content-area">
+        <slot />
+      </main>
+      <aside class="cell layout-sidebar-r"></aside>
+      <Footer />
+    </div>
+  </body>
+</html>

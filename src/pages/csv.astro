@@ -1,0 +1,26 @@
+---
+import { format } from "date-fns";
+import { getCollection } from "astro:content";
+
+const allPosts = (await getCollection("blog")).sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+---
+
+<pre>
+id,title,pubDate
+{
+  allPosts
+    .map((post) => {
+      const dq = '"';
+      const escapedTitle = post.data.title.replace(
+        new RegExp(dq, "g"),
+        dq + dq
+      );
+      const id = post.id;
+      const date = format(post.data.pubDate, "yyyy-MM-dd");
+      return dq + id + dq + "," + dq + escapedTitle + dq + "," + dq + date + dq;
+    })
+    .join("\n")
+}
+</pre>

@@ -6,7 +6,7 @@ import Layout from "../layouts/Layout.astro";
 import { calculateTotalPages, POSTS_PER_PAGE } from "../utils/pagination";
 
 const allPosts = (await getCollection("blog")).sort(
-  (a, b) => Number(b.id) - Number(a.id)
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
 );
 const totalPages = calculateTotalPages(allPosts.length);
 const latestPosts = allPosts.slice(0, POSTS_PER_PAGE);

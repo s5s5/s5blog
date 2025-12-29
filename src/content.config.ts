@@ -2,6 +2,7 @@ import { TZDate } from "@date-fns/tz";
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
 import { TIMEZONE } from "./consts.ts";
+import { weatherNames } from "./utils/weather.ts";
 
 const blog = defineCollection({
   // Load Markdown and MDX files in the `src/content/blog/` directory.
@@ -16,9 +17,9 @@ const blog = defineCollection({
       .string()
       .optional()
       .transform((val) => (val ? new TZDate(val, TIMEZONE) : undefined)),
-    category: z.string().optional(),
-    weather: z.string().optional(),
-    location: z.string().optional(),
+    category: z.string(),
+    weather: z.enum(weatherNames),
+    location: z.string(),
     heroImage: z.string().optional()
   })
 });

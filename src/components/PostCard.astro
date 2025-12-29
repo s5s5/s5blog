@@ -15,7 +15,7 @@ const { Content } = await render(post);
 
 <article class="post-card">
   <a href={`/${post.id}`}>
-    <Weather post={post} />
+    <Weather weather={post.data.weather} />
   </a>
   <div class="post-content">
     <header>
@@ -31,7 +31,7 @@ const { Content } = await render(post);
       </a>
       // BY s5s5 // IN
       <a
-        href={`/category/${post.data.category.toLowerCase().replace(" ", "-")}`}
+        href={`/category/${(post.data.category ?? "").toLowerCase().replace(" ", "-")}`}
       >
         {post.data.category}
       </a>

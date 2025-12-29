@@ -1,17 +1,15 @@
 ---
+import { format } from "date-fns";
+
 type Props = {
   date: Date;
 };
 
 const { date } = Astro.props;
 
-// function formatDateTime(d: Date): string {
-//   const pad = (n: number) => String(n).padStart(2, "0");
-//   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-// }
+const displayDate = format(date, "yyyy-MM-dd HH:mm");
 ---
 
-<time>{date}</time>
-<!--<time datetime={date.toISOString()}>-->
-<!--  {formatDateTime(date)}-->
-<!--</time>-->
+<time datetime={date.toISOString()}>
+  {displayDate}
+</time>

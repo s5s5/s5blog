@@ -16,8 +16,10 @@
     "@astrojs/mdx": "^4.3.13",
     "@astrojs/rss": "^4.0.14",
     "@astrojs/sitemap": "^3.6.0",
+    "@date-fns/tz": "^1.4.1",
     "astro": "^5.16.5",
     "better-auth": "^1.4.9",
+    "date-fns": "^4.1.0",
     "drizzle-orm": "^0.45.1",
     "remark-breaks": "^4.0.0",
     "typescript": "^5.9.3"

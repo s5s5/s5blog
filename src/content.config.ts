@@ -17,8 +17,8 @@ const blog = defineCollection({
       .optional()
       .transform((val) => (val ? new TZDate(val, TIMEZONE) : undefined)),
     category: z.string().optional(),
-    location: z.string().optional(),
     weather: z.string().optional(),
+    location: z.string().optional(),
     heroImage: z.string().optional()
   })
 });

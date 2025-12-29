@@ -6,40 +6,66 @@
   <h3 class="module-header">:: SETTINGS</h3>
   <div class="cell-pad">
     <button type="button" id="theme-toggle" class="theme-btn">
-      THEME: LIGHT
+      THEME: AUTO
     </button>
   </div>
 </section>
 
 <script>
   // --- THEME LOGIC ---
-  const themeBtn = document.getElementById("theme-toggle");
+  const themeBtn = document.getElementById(
+    "theme-toggle"
+  ) as HTMLButtonElement | null;
   const htmlEl = document.documentElement;
-  let currentThemeMode = localStorage.getItem("themeMode");
+  let currentThemeMode = localStorage.getItem("themeMode") || "auto";
 
-  if (!currentThemeMode) {
-    const systemDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-    currentThemeMode = systemDark ? "dark" : "light";
+  function getSystemTheme(): "light" | "dark" {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  }
+
+  const systemTheme = getSystemTheme();
+  const themeModes: string[] =
+    systemTheme === "dark"
+      ? ["auto", "light", "dark"]
+      : ["auto", "dark", "light"];
+
+  function getEffectiveTheme(): "light" | "dark" {
+    if (currentThemeMode === "auto") {
+      return getSystemTheme();
+    }
+    return currentThemeMode as "light" | "dark";
   }
 
   function applyTheme() {
-    if (currentThemeMode === "dark") {
+    const effectiveTheme = getEffectiveTheme();
+    if (effectiveTheme === "dark") {
       htmlEl.setAttribute("data-theme", "dark");
     } else {
       htmlEl.removeAttribute("data-theme");
     }
-    themeBtn.innerText = "THEME: " + currentThemeMode.toUpperCase();
+    if (themeBtn) {
+      themeBtn.innerText = "THEME: " + currentThemeMode.toUpperCase();
+    }
     // setTimeout(redrawAllCanvases, 50);
   }
 
-  themeBtn.addEventListener("click", () => {
-    // Toggle only between light and dark
-    currentThemeMode = currentThemeMode === "light" ? "dark" : "light";
-    localStorage.setItem("themeMode", currentThemeMode);
-    applyTheme();
-  });
+  if (themeBtn) {
+    themeBtn.addEventListener("click", () => {
+      const currentIndex = themeModes.indexOf(currentThemeMode);
+      const nextIndex = (currentIndex + 1) % themeModes.length;
+      currentThemeMode = themeModes[nextIndex];
+      localStorage.setItem("themeMode", currentThemeMode);
+      applyTheme();
+    });
+  }
+
+  if (currentThemeMode === "auto") {
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", applyTheme);
+  }
 
   applyTheme();
 </script>
@@ -52,7 +78,7 @@
     border: 1px solid var(--container-bg);
     color: var(--text-main);
     padding: 4px;
-    font-family: var(--font-mono);
+    font-family: var(--font-mono), monospace;
     font-size: 10px;
     cursor: pointer;
   }

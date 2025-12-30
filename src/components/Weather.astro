@@ -21,157 +21,169 @@ const weatherLabel = `${weather} ${key.toUpperCase()}`;
 </article-weather>
 
 <script>
-  type ColorScheme = {
+  interface IColors {
     bg: string;
     line: string;
     accent: string;
-  };
+  }
 
-  class ArticleWeather extends HTMLElement {
-    weatherKey: string | null = null;
-    drawType: string | null = null;
+  // =========================================
+  // TinyP5: 微型绘图引擎
+  // =========================================
+  class TinyP5 {
+    canvas: HTMLCanvasElement;
+    ctx: CanvasRenderingContext2D;
+    width: number;
+    height: number;
+    _fill: string | null;
+    _stroke: string | null;
+    _lineWidth: number;
 
-    connectedCallback() {
-      this.weatherKey = this.getAttribute("data-weather");
-      this.drawType = this.getAttribute("data-draw");
-      this.initCanvas();
+    constructor(canvas: HTMLCanvasElement) {
+      this.canvas = canvas;
+      this.ctx = canvas.getContext("2d", { alpha: false })!;
+      this.width = canvas.width;
+      this.height = canvas.height;
+      this._fill = "#000";
+      this._stroke = "#000";
+      this._lineWidth = 1;
     }
 
-    initCanvas() {
-      const canvas = this.querySelector("canvas");
-      if (!canvas) return;
-      const container = canvas.parentElement;
-      if (!container) return;
-
-      const observer = new ResizeObserver(() => {
-        this.draw(canvas as HTMLCanvasElement, container as HTMLElement);
-      });
-      observer.observe(container);
-
-      requestAnimationFrame(() =>
-        this.draw(canvas as HTMLCanvasElement, container as HTMLElement)
-      );
+    resize(w: number, h: number, dpr: number = 1) {
+      this.width = w;
+      this.height = h;
+      this.canvas.width = w * dpr;
+      this.canvas.height = h * dpr;
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+      this.ctx.scale(dpr, dpr);
+      this.ctx.imageSmoothingEnabled = false;
     }
 
-    getCSSVal(name: string): string {
-      return getComputedStyle(document.documentElement)
-        .getPropertyValue(name)
-        .trim();
+    background(col: string) {
+      this.ctx.fillStyle = col;
+      this.ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    draw(canvas: HTMLCanvasElement, container: HTMLElement): void {
-      if (!container || container.offsetWidth === 0) return;
-
-      const colors: ColorScheme = {
-        bg: this.getCSSVal("--canvas-bg"),
-        line: this.getCSSVal("--canvas-line"),
-        accent: this.getCSSVal("--canvas-accent")
-      };
-
-      const dpr = window.devicePixelRatio || 1;
-      const rect = container.getBoundingClientRect();
-
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(dpr, dpr);
-      ctx.imageSmoothingEnabled = false;
-
-      this.drawScene(ctx, rect.width, rect.height, colors);
+    fill(col: string) {
+      this._fill = col;
+      this.ctx.fillStyle = col;
     }
 
-    drawScene(
-      ctx: CanvasRenderingContext2D,
-      w: number,
-      h: number,
-      colors: ColorScheme
-    ): void {
-      // 1. Background
-      ctx.fillStyle = colors.bg;
-      ctx.fillRect(0, 0, w, h);
+    stroke(col: string) {
+      this._stroke = col;
+      this.ctx.strokeStyle = col;
+    }
 
-      // 2. Ground
+    strokeWeight(w: number) {
+      this._lineWidth = w;
+      this.ctx.lineWidth = w;
+    }
+
+    noStroke() {
+      this._stroke = null;
+    }
+
+    alpha(val: number) {
+      this.ctx.globalAlpha = val;
+    }
+
+    resetAlpha() {
+      this.ctx.globalAlpha = 1.0;
+    }
+
+    rect(x: number, y: number, w: number, h: number) {
+      if (this._fill) this.ctx.fillRect(x, y, w, h);
+      if (this._stroke) this.ctx.strokeRect(x, y, w, h);
+    }
+
+    circle(x: number, y: number, d: number) {
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, d / 2, 0, Math.PI * 2);
+      if (this._fill) this.ctx.fill();
+      if (this._stroke) this.ctx.stroke();
+    }
+
+    line(x1: number, y1: number, x2: number, y2: number) {
+      if (!this._stroke) return;
+      this.ctx.beginPath();
+      this.ctx.moveTo(x1, y1);
+      this.ctx.lineTo(x2, y2);
+      this.ctx.stroke();
+    }
+
+    random(min: string[]): string;
+    random(min: number, max?: number): number;
+    random(min: number | string[], max?: number): number | string {
+      if (Array.isArray(min)) {
+        return min[Math.floor(Math.random() * min.length)];
+      }
+      const minNum = min as number;
+      const maxNum = max !== undefined ? max : minNum;
+      if (max === undefined) {
+        return Math.random() * minNum;
+      }
+      return Math.random() * (maxNum - minNum) + minNum;
+    }
+
+    chance(prob: number) {
+      return Math.random() < prob;
+    }
+  }
+
+  // =========================================
+  // WeatherSketch: 继承自 TinyP5 的天气画师
+  // =========================================
+  class WeatherSketch extends TinyP5 {
+    draw(drawType: string, colors: IColors) {
+      const w = this.width;
+      const h = this.height;
+
+      this.background(colors.bg);
+
       const groundY = h - 20;
-      ctx.fillStyle = colors.line;
-      ctx.fillRect(0, groundY, w, 1);
+      this.fill(colors.line);
+      this.noStroke();
+      this.rect(0, groundY, w, 1);
 
-      // Ground Noise
       for (let i = 0; i < w; i += 10) {
-        if (Math.random() > 0.6) {
-          const nw = Math.random() * 4 + 1;
-          ctx.fillRect(i, groundY + 2 + Math.random() * 5, nw, 1);
+        if (this.chance(0.4)) {
+          const nw = this.random(1, 5);
+          this.rect(i, groundY + 2 + this.random(5), nw, 1);
         }
       }
 
-      // 3. Weather Elements (Using draw / drawType)
-      this.drawRetroWeather(ctx, w, h, this.drawType, colors);
+      this.drawWeatherLayer(drawType, colors, groundY);
 
-      // 4. Scenery (Trees/Grass)
-      const numProps = 2 + Math.floor(Math.random() * 3);
+      const numProps = Math.floor(this.random(2, 5));
+      this.fill(colors.line);
       for (let i = 0; i < numProps; i++) {
-        let px = Math.random() * w;
-        const ph = 10 + Math.random() * 15;
-        const pw = 6 + Math.random() * 6;
-        ctx.fillStyle = colors.line;
-        ctx.fillRect(px, groundY - ph, pw, ph);
-        // Simple detailing
-        if (Math.random() > 0.5) {
-          ctx.fillRect(px - 3, groundY - ph + 5, 3, 4);
-          ctx.fillRect(px - 3, groundY - ph + 2, 1, 3);
+        let px = this.random(w);
+        const ph = this.random(10, 25);
+        const pw = this.random(6, 12);
+        this.rect(px, groundY - ph, pw, ph);
+        if (this.chance(0.5)) {
+          this.rect(px - 3, groundY - ph + 5, 3, 4);
+          this.rect(px - 3, groundY - ph + 2, 1, 3);
         }
       }
 
-      // 5. Entities
-      const entityCount = 1 + Math.floor(Math.random() * 5);
       const types = ["human", "dog", "cat", "chicken", "bird"];
+      this.drawEntity(w * 0.382, groundY, colors.accent, this.random(types));
 
-      // Always one hero
-      this.drawPixelEntity(
-        ctx,
-        w * 0.2,
-        groundY,
-        colors.accent,
-        types[Math.floor(Math.random() * types.length)]
-      );
-
-      // Others
+      const entityCount = Math.floor(this.random(1, 6));
       for (let i = 1; i < entityCount; i++) {
-        const ex = Math.random() * (w - 40) + 20;
-        const etype = types[Math.floor(Math.random() * types.length)];
-        this.drawPixelEntity(ctx, ex, groundY, colors.line, etype);
+        const ex = this.random(20, w - 20);
+        this.drawEntity(ex, groundY, colors.line, this.random(types));
       }
 
-      // 6. UFO (Rare)
-      if (Math.random() > 0.7) {
-        this.drawUFO(
-          ctx,
-          Math.random() * w,
-          Math.random() * (h * 0.3),
-          colors.line
-        );
+      if (this.chance(0.5)) {
+        this.drawUFO(this.random(w), this.random(h * 0.3), colors.line);
       }
     }
 
-    // =========================================
-    // COMPOSABLE WEATHER DRAWING
-    // =========================================
-    drawRetroWeather(
-      ctx: CanvasRenderingContext2D,
-      w: number,
-      h: number,
-      type: string | null,
-      colors: ColorScheme
-    ): void {
-      if (!type) type = "Sun";
-      const t = type.toLowerCase().replace(/\s+/g, ""); // e.g. "sunbehindraincloud"
-
-      // Analyze what to draw based on draw string inclusion
-      // draw Examples: "Sun", "Sun With Small Cloud", "Sun Behind Rain Cloud",
-      // "Cloud With Snow", "Cloud With Lightning And Rain"
+    drawWeatherLayer(typeStr: string, colors: IColors, groundY: number) {
+      if (!typeStr) typeStr = "Sun";
+      const t = typeStr.toLowerCase().replace(/\s+/g, "");
 
       const hasSun = t.includes("sun");
       const hasCloud = t.includes("cloud") || t.includes("overcast");
@@ -180,297 +192,301 @@ const weatherLabel = `${weather} ${key.toUpperCase()}`;
         t.includes("snow") || t.includes("snowflake") || t.includes("ice");
       const hasLightning = t.includes("lightning") || t.includes("thunder");
       const hasFog = t.includes("fog");
-
-      // "Small Cloud" implies lighter clouds
       const isSmallCloud = t.includes("smallcloud");
 
-      // Draw Order: Sun -> Clouds -> Precipitation -> Fog -> Lightning
-
-      // 1. SUN
       if (hasSun) {
-        this.drawSun(ctx, w, h, colors);
+        const sunX = this.width - 50;
+        const sunY = 40;
+        this.fill(colors.accent);
+        this.rect(sunX, sunY, 12, 12);
+
+        this.fill(colors.line);
+        const gap = 4;
+        this.rect(sunX + 5, sunY - 6 - gap, 2, 3);
+        this.rect(sunX + 5, sunY + 15 + gap, 2, 3);
+        this.rect(sunX - 6 - gap, sunY + 5, 3, 2);
+        this.rect(sunX + 15 + gap, sunY + 5, 3, 2);
+        const dGap = 3;
+        this.rect(sunX - 3 - dGap, sunY - 3 - dGap, 2, 2);
+        this.rect(sunX + 13 + dGap, sunY - 3 - dGap, 2, 2);
+        this.rect(sunX - 3 - dGap, sunY + 13 + dGap, 2, 2);
+        this.rect(sunX + 13 + dGap, sunY + 13 + dGap, 2, 2);
       }
 
-      // 2. CLOUDS
       if (hasCloud) {
-        this.drawClouds(ctx, w, h, colors, isSmallCloud);
+        const count = isSmallCloud ? 3 : 8;
+        this.fill(colors.line);
+        this.alpha(isSmallCloud ? 0.6 : 0.25);
+
+        for (let i = 0; i < count; i++) {
+          let cx = this.random(this.width);
+          let cy = this.random(this.height * 0.4);
+          let cw = this.random(isSmallCloud ? 20 : 40, isSmallCloud ? 50 : 70);
+
+          this.rect(cx, cy, cw, 10);
+          this.rect(cx + 8, cy - 6, cw - 16, 6);
+          this.rect(cx + 4, cy + 4, cw - 12, 4);
+        }
+        this.resetAlpha();
+
+        if (!isSmallCloud) {
+          this.alpha(0.4);
+          for (let i = 0; i < 10; i++) {
+            this.rect(
+              this.random(this.width),
+              this.random(this.height * 0.5),
+              this.random(20, 80),
+              2
+            );
+          }
+          this.resetAlpha();
+        }
       }
 
-      // 3. PRECIPITATION
       if (hasRain) {
-        this.drawRain(ctx, w, h, colors);
+        this.fill(colors.line);
+        for (let i = 0; i < 50; i++) {
+          this.rect(this.random(this.width), this.random(this.height), 1, 5);
+        }
       }
+
       if (hasSnow) {
-        this.drawSnow(ctx, w, h, colors);
+        const isDark =
+          document.documentElement.getAttribute("data-theme") === "dark" ||
+          colors.bg.includes("#202") ||
+          colors.bg.includes("#111");
+        this.fill(isDark ? "#fff" : "#ccc");
+        for (let i = 0; i < 60; i++) {
+          this.rect(this.random(this.width), this.random(this.height), 2, 2);
+        }
       }
 
-      // 4. FOG
       if (hasFog) {
-        this.drawFog(ctx, w, h, colors);
+        this.fill(colors.line);
+        this.alpha(0.15);
+        for (let x = 0; x < this.width; x += 3) {
+          if (this.chance(0.5)) this.rect(x, 0, 1, this.height);
+        }
+        this.resetAlpha();
       }
 
-      // 5. LIGHTNING
       if (hasLightning) {
-        this.drawLightning(ctx, w, h, colors);
-      }
-    }
-
-    // --- Elemental Drawing Functions ---
-
-    drawSun(
-      ctx: CanvasRenderingContext2D,
-      w: number,
-      h: number,
-      colors: ColorScheme
-    ): void {
-      const sunX = w - 50;
-      const sunY = 40;
-      ctx.fillStyle = colors.accent;
-      ctx.fillRect(sunX, sunY, 12, 12);
-
-      // Rays
-      ctx.fillStyle = colors.line;
-      // In "Sun Behind..." we might want the sun to be the accent color still,
-      // but maybe the rays are less visible? Stick to standard retro sun.
-      const gap = 4;
-      // Cardinal
-      ctx.fillRect(sunX + 5, sunY - 6 - gap, 2, 3);
-      ctx.fillRect(sunX + 5, sunY + 15 + gap, 2, 3);
-      ctx.fillRect(sunX - 6 - gap, sunY + 5, 3, 2);
-      ctx.fillRect(sunX + 15 + gap, sunY + 5, 3, 2);
-      // Diagonal
-      const diagGap = 3;
-      ctx.fillRect(sunX - 3 - diagGap, sunY - 3 - diagGap, 2, 2);
-      ctx.fillRect(sunX + 13 + diagGap, sunY - 3 - diagGap, 2, 2);
-      ctx.fillRect(sunX - 3 - diagGap, sunY + 13 + diagGap, 2, 2);
-      ctx.fillRect(sunX + 13 + diagGap, sunY + 13 + diagGap, 2, 2);
-    }
-
-    drawClouds(
-      ctx: CanvasRenderingContext2D,
-      w: number,
-      h: number,
-      colors: ColorScheme,
-      isSmall: boolean
-    ): void {
-      const count = isSmall ? 3 : 8; // Fewer clouds for "Small Cloud"
-      ctx.fillStyle = colors.line;
-
-      // If it's "Small Cloud", maybe keep them high and transparent
-      // If it's "Cloud" (Overcast), make them dense
-      ctx.globalAlpha = isSmall ? 0.6 : 0.25;
-
-      for (let i = 0; i < count; i++) {
-        let cx = Math.random() * w;
-        let cy = Math.random() * (h * 0.4); // Keep in top 40%
-        let cw = (isSmall ? 20 : 40) + Math.random() * 30;
-
-        // Main cloud body
-        ctx.fillRect(cx, cy, cw, 10);
-        // Details to make it look blocky/retro
-        ctx.fillRect(cx + 8, cy - 6, cw - 16, 6);
-        ctx.fillRect(cx + 4, cy + 4, cw - 12, 4);
-      }
-
-      // If Overcast/Heavy cloud, add some horizon lines
-      if (!isSmall) {
-        ctx.globalAlpha = 0.4;
-        for (let i = 0; i < 10; i++) {
-          ctx.fillRect(
-            Math.random() * w,
-            Math.random() * (h * 0.5),
-            Math.random() * 60 + 20,
-            2
-          );
+        this.stroke(colors.accent);
+        this.strokeWeight(2);
+        this.ctx.beginPath();
+        let lx = this.random(this.width);
+        let ly = 10;
+        this.ctx.moveTo(lx, ly);
+        while (ly < this.height - 30) {
+          lx += this.random(-20, 20);
+          ly += this.random(15, 25);
+          this.ctx.lineTo(lx, ly);
         }
-      }
-      ctx.globalAlpha = 1.0;
-    }
-
-    drawRain(
-      ctx: CanvasRenderingContext2D,
-      w: number,
-      h: number,
-      colors: ColorScheme
-    ): void {
-      ctx.fillStyle = colors.line;
-      for (let i = 0; i < 50; i++) {
-        const rx = Math.random() * w;
-        const ry = Math.random() * h;
-        ctx.fillRect(rx, ry, 1, 5); // Vertical rain drops
+        this.ctx.stroke();
+        this.noStroke();
       }
     }
 
-    drawSnow(
-      ctx: CanvasRenderingContext2D,
-      w: number,
-      h: number,
-      colors: ColorScheme
-    ): void {
-      const isDark =
-        document.documentElement.getAttribute("data-theme") === "dark" ||
-        colors.bg.includes("#202124") ||
-        colors.bg.includes("#111");
-      ctx.fillStyle = isDark ? "#fff" : "#ccc";
-
-      for (let i = 0; i < 60; i++) {
-        const sx = Math.random() * w;
-        const sy = Math.random() * h;
-        // Simple 2x2 pixel snowflakes
-        ctx.fillRect(sx, sy, 2, 2);
-      }
-    }
-
-    drawFog(
-      ctx: CanvasRenderingContext2D,
-      w: number,
-      h: number,
-      colors: ColorScheme
-    ): void {
-      ctx.fillStyle = colors.line;
-      ctx.globalAlpha = 0.15;
-      // Vertical stripes for fog effect
-      for (let x = 0; x < w; x += 3) {
-        if (Math.random() > 0.5) {
-          ctx.fillRect(x, 0, 1, h);
-        }
-      }
-      ctx.globalAlpha = 1.0;
-    }
-
-    drawLightning(
-      ctx: CanvasRenderingContext2D,
-      w: number,
-      h: number,
-      colors: ColorScheme
-    ): void {
-      ctx.strokeStyle = colors.accent;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      let lx = Math.random() * w;
-      let ly = 10;
-      ctx.moveTo(lx, ly);
-
-      while (ly < h - 30) {
-        lx += (Math.random() - 0.5) * 40; // Zig zag
-        ly += 15 + Math.random() * 10;
-        ctx.lineTo(lx, ly);
-      }
-      ctx.stroke();
-    }
-
-    // --- Entity Drawing (Unchanged but modularized in main flow) ---
-    drawUFO(
-      ctx: CanvasRenderingContext2D,
-      x: number,
-      y: number,
-      color: string
-    ): void {
-      ctx.fillStyle = color;
+    drawEntity(x: number, y: number, color: string, type: string) {
       const size = 3;
-      ctx.fillRect(x + 2 * size, y, 4 * size, 2 * size);
-      ctx.fillRect(x, y + 2 * size, 8 * size, 2 * size);
-      ctx.clearRect(x + size, y + 3 * size, size, size / 2);
-      ctx.clearRect(x + 3 * size, y + 3 * size, size, size / 2);
-      ctx.clearRect(x + 6 * size, y + 3 * size, size, size / 2);
-    }
+      this.fill(color);
+      this.stroke(color);
+      this.strokeWeight(size);
+      this.ctx.lineCap = "round";
+      this.ctx.lineJoin = "round";
 
-    drawPixelEntity(
-      ctx: CanvasRenderingContext2D,
-      x: number,
-      y: number,
-      color: string,
-      type: string
-    ): void {
-      const size = 3;
-      ctx.fillStyle = color;
-      ctx.strokeStyle = color;
-      ctx.lineWidth = size;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      const r = (dx: number, dy: number, w: number, h: number) =>
-        ctx.fillRect(x + dx * size, y - dy * size, w * size, h * size);
+      const b = (dx: number, dy: number, w: number, h: number) =>
+        this.ctx.fillRect(x + dx * size, y - dy * size, w * size, h * size);
 
       if (type === "human") {
-        const pose = Math.floor(Math.random() * 3);
-        const dir = Math.random() > 0.5 ? 1 : -1;
+        const dir = this.chance(0.5) ? 1 : -1;
+
         const headCx = x + 2.5 * size;
-        const headCy = y - 11 * size;
+        const headCy = y - 14 * size;
         const neckY = headCy + 1.5 * size;
-        const hipY = y - 5 * size;
-        const shoulderX = headCx + (pose > 0 ? dir * 2 * size : 0);
-        const shoulderY = neckY + size;
+        const hipY = y - 7 * size;
 
-        ctx.beginPath();
-        ctx.arc(headCx, headCy, 1.5 * size, 0, Math.PI * 2);
-        ctx.fill();
+        this.ctx.beginPath();
+        this.ctx.arc(headCx, headCy, 1.5 * size, 0, Math.PI * 2);
+        this.ctx.fill();
 
-        ctx.beginPath();
-        ctx.moveTo(shoulderX, neckY);
-        ctx.lineTo(headCx, hipY);
-        ctx.stroke();
+        const bodyLean = this.random(-0.5, 0.5) * size;
+        const shoulderX = headCx + bodyLean;
+        this.line(shoulderX, neckY, headCx, hipY);
 
-        // Legs & Arms (Simplified logic from previous version)
-        if (pose === 0) {
-          // Stand
-          ctx.beginPath();
-          ctx.moveTo(headCx, hipY);
-          ctx.lineTo(headCx, y);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(shoulderX, shoulderY);
-          ctx.lineTo(
-            shoulderX + (Math.random() > 0.5 ? 6 : -2) * size,
-            shoulderY + (Math.random() > 0.5 ? 0 : 6) * size
+        const drawLimbPolar = (
+          startX: number,
+          startY: number,
+          angle1: number,
+          len1: number,
+          angle2: number,
+          len2: number
+        ) => {
+          const a1 = angle1 + Math.PI / 2;
+          const x2 = startX + Math.cos(a1) * len1 * size;
+          const y2 = startY + Math.sin(a1) * len1 * size;
+
+          const a2 = angle2 + Math.PI / 2;
+          const x3 = x2 + Math.cos(a2) * len2 * size;
+          const y3 = y2 + Math.sin(a2) * len2 * size;
+
+          this.ctx.beginPath();
+          this.ctx.moveTo(startX, startY);
+          this.ctx.lineTo(x2, y2);
+          this.ctx.lineTo(x3, y3);
+          this.ctx.stroke();
+        };
+
+        const armL1 = 2.8;
+        const armL2 = 2.5;
+        const legL1 = 3.8;
+        const legL2 = 3.8;
+
+        const leg1A1 = this.random(-0.5, 0.5);
+        const leg1A2 = leg1A1 - dir * this.random(0.1, 1.2);
+        drawLimbPolar.call(this, headCx, hipY, leg1A1, legL1, leg1A2, legL2);
+
+        const leg2A1 = this.random(-0.5, 0.5);
+        const leg2A2 = leg2A1 - dir * this.random(0.1, 1.2);
+        drawLimbPolar.call(this, headCx, hipY, leg2A1, legL1, leg2A2, legL2);
+
+        const skyArmIndex = this.chance(0.5) ? 0 : 1;
+
+        if (skyArmIndex === 0) {
+          const a1 = -Math.PI + this.random(-0.6, 0.6);
+          const a2 = a1 + this.random(-0.4, 0.4);
+          drawLimbPolar.call(
+            this,
+            shoulderX,
+            neckY + size,
+            a1,
+            armL1,
+            a2,
+            armL2
           );
-          ctx.stroke(); // Random arm
         } else {
-          // Run
-          ctx.beginPath();
-          ctx.moveTo(headCx, hipY);
-          ctx.lineTo(headCx - dir * 3 * size, hipY + 2 * size);
-          ctx.lineTo(headCx - dir * 4 * size, y - 2 * size);
-          ctx.moveTo(headCx, hipY);
-          ctx.lineTo(headCx + dir * 2 * size, hipY + size);
-          ctx.lineTo(headCx + dir * 2 * size, y);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(shoulderX, shoulderY);
-          ctx.lineTo(shoulderX + dir * 3 * size, shoulderY - 2 * size);
-          ctx.moveTo(shoulderX, shoulderY);
-          ctx.lineTo(shoulderX - dir * 2 * size, shoulderY + 2 * size);
-          ctx.stroke();
+          const a1 = this.random(-2, 2);
+          const a2 = a1 + this.random(-1, 1);
+          drawLimbPolar.call(
+            this,
+            shoulderX,
+            neckY + size,
+            a1,
+            armL1,
+            a2,
+            armL2
+          );
+        }
+
+        if (skyArmIndex === 1) {
+          const a1 = -Math.PI + this.random(-0.6, 0.6);
+          const a2 = a1 + this.random(-0.4, 0.4);
+          drawLimbPolar.call(
+            this,
+            shoulderX,
+            neckY + size,
+            a1,
+            armL1,
+            a2,
+            armL2
+          );
+        } else {
+          const a1 = this.random(-2, 2);
+          const a2 = a1 + this.random(-1, 1);
+          drawLimbPolar.call(
+            this,
+            shoulderX,
+            neckY + size,
+            a1,
+            armL1,
+            a2,
+            armL2
+          );
         }
       } else if (type === "dog") {
-        r(0, 6, 3, 3);
-        r(0, 8, 1, 2);
-        r(2, 6, 6, 3);
-        r(7, 7, 1, 2);
-        r(2, 3, 1, 3);
-        r(6, 3, 1, 3);
+        b(0, 6, 3, 3);
+        b(0, 8, 1, 2);
+        b(2, 6, 6, 3);
+        b(7, 7, 1, 2);
+        b(2, 3, 1, 3);
+        b(6, 3, 1, 3);
       } else if (type === "cat") {
-        r(0, 6, 3, 3);
-        r(0, 8, 1, 2);
-        r(2, 8, 1, 2);
-        r(2, 5, 5, 3);
-        r(6, 6, 1, 4);
-        r(2, 2, 1, 2);
-        r(5, 2, 1, 2);
+        b(0, 6, 3, 3);
+        b(0, 8, 1, 2);
+        b(2, 8, 1, 2);
+        b(2, 5, 5, 3);
+        b(6, 6, 1, 4);
+        b(2, 2, 1, 2);
+        b(5, 2, 1, 2);
       } else if (type === "chicken") {
-        r(0, 4, 2, 2);
-        r(1, 4, 1, 1);
-        r(0, 3, 3, 2);
-        r(1, 1, 1, 1);
+        b(0, 4, 2, 2);
+        b(1, 4, 1, 1);
+        b(0, 3, 3, 2);
+        b(1, 1, 1, 1);
       } else if (type === "bird") {
-        const flyY = y - 30 - Math.random() * 20;
-        ctx.fillRect(x, flyY, 4 * size, size);
-        ctx.fillRect(x + size, flyY - size, size, 3 * size);
+        const flyY = this.random(this.height * 0.4, this.height * 0.6);
+        this.ctx.fillRect(x, flyY, 4 * size, size);
+        this.ctx.fillRect(x + size, flyY - size, size, 3 * size);
       }
-      ctx.beginPath();
+    }
+
+    drawUFO(x: number, y: number, color: string) {
+      this.fill(color);
+      const size = 3;
+      const b = (dx: number, dy: number, w: number, h: number) =>
+        this.ctx.fillRect(x + dx * size, y + dy * size, w * size, h * size);
+      b(2, 0, 4, 2);
+      b(0, 2, 8, 2);
+      this.ctx.clearRect(x + size, y + 3 * size, size, size / 2);
+      this.ctx.clearRect(x + 3 * size, y + 3 * size, size, size / 2);
+      this.ctx.clearRect(x + 6 * size, y + 3 * size, size, size / 2);
     }
   }
 
-  // Register Web Component
+  // =========================================
+  // ArticleWeather Web Component
+  // =========================================
+  class ArticleWeather extends HTMLElement {
+    weatherKey: string | null = null;
+    drawType: string | null = null;
+    sketch!: WeatherSketch;
+
+    connectedCallback() {
+      this.weatherKey = this.getAttribute("data-weather");
+      this.drawType = this.getAttribute("data-draw");
+      this.initCanvas();
+    }
+
+    initCanvas() {
+      const canvas = this.querySelector("canvas") as HTMLCanvasElement;
+      const container = canvas.parentElement as HTMLElement;
+
+      this.sketch = new WeatherSketch(canvas);
+
+      const observer = new ResizeObserver(() => this.paint(container));
+      observer.observe(container);
+
+      requestAnimationFrame(() => this.paint(container));
+    }
+
+    paint(container: HTMLElement) {
+      if (!container || container.offsetWidth === 0) return;
+
+      const getCSS = (n: string) =>
+        getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+      const colors: IColors = {
+        bg: getCSS("--canvas-bg"),
+        line: getCSS("--canvas-line"),
+        accent: getCSS("--canvas-accent")
+      };
+
+      const rect = container.getBoundingClientRect();
+      this.sketch.resize(rect.width, rect.height, window.devicePixelRatio || 1);
+      this.sketch.draw(this.drawType || "", colors);
+    }
+  }
+
   customElements.define("article-weather", ArticleWeather);
 </script>
 

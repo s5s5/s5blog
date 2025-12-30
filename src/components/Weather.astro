@@ -7,8 +7,8 @@ type Props = {
 
 const { weather } = Astro.props;
 
-const { key, draw } = weatherData[weather];
-const weatherLabel = `${weather} ${key.toUpperCase()}`;
+const { icon, key, draw } = weatherData[weather];
+const weatherLabel = `${weather} ${key.toUpperCase()} ${icon}`;
 ---
 
 <article-weather data-weather={key} data-draw={draw}>
@@ -21,11 +21,55 @@ const weatherLabel = `${weather} ${key.toUpperCase()}`;
 </article-weather>
 
 <script>
-  interface IColors {
+  // =========================================
+  // ArticleWeather Web Component
+  // =========================================
+  class ArticleWeather extends HTMLElement {
+    weatherKey: string | null = null;
+    drawType: string | null = null;
+    sketch!: WeatherSketch;
+
+    connectedCallback() {
+      this.weatherKey = this.getAttribute("data-weather");
+      this.drawType = this.getAttribute("data-draw");
+      this.initCanvas();
+    }
+
+    initCanvas() {
+      const canvas = this.querySelector("canvas") as HTMLCanvasElement;
+      const container = canvas.parentElement as HTMLElement;
+
+      this.sketch = new WeatherSketch(canvas);
+
+      const observer = new ResizeObserver(() => this.paint(container));
+      observer.observe(container);
+
+      requestAnimationFrame(() => this.paint(container));
+    }
+
+    paint(container: HTMLElement) {
+      if (!container || container.offsetWidth === 0) return;
+
+      const getCSS = (n: string) =>
+        getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+      const colors: IColors = {
+        bg: getCSS("--canvas-bg"),
+        line: getCSS("--canvas-line"),
+        accent: getCSS("--canvas-accent")
+      };
+
+      const rect = container.getBoundingClientRect();
+      this.sketch.resize(rect.width, rect.height, window.devicePixelRatio || 1);
+      this.sketch.draw(this.drawType || "", colors);
+    }
+  }
+
+  type IColors = {
     bg: string;
     line: string;
     accent: string;
-  }
+  };
 
   // =========================================
   // TinyP5: 微型绘图引擎
@@ -440,50 +484,6 @@ const weatherLabel = `${weather} ${key.toUpperCase()}`;
       this.ctx.clearRect(x + size, y + 3 * size, size, size / 2);
       this.ctx.clearRect(x + 3 * size, y + 3 * size, size, size / 2);
       this.ctx.clearRect(x + 6 * size, y + 3 * size, size, size / 2);
-    }
-  }
-
-  // =========================================
-  // ArticleWeather Web Component
-  // =========================================
-  class ArticleWeather extends HTMLElement {
-    weatherKey: string | null = null;
-    drawType: string | null = null;
-    sketch!: WeatherSketch;
-
-    connectedCallback() {
-      this.weatherKey = this.getAttribute("data-weather");
-      this.drawType = this.getAttribute("data-draw");
-      this.initCanvas();
-    }
-
-    initCanvas() {
-      const canvas = this.querySelector("canvas") as HTMLCanvasElement;
-      const container = canvas.parentElement as HTMLElement;
-
-      this.sketch = new WeatherSketch(canvas);
-
-      const observer = new ResizeObserver(() => this.paint(container));
-      observer.observe(container);
-
-      requestAnimationFrame(() => this.paint(container));
-    }
-
-    paint(container: HTMLElement) {
-      if (!container || container.offsetWidth === 0) return;
-
-      const getCSS = (n: string) =>
-        getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-
-      const colors: IColors = {
-        bg: getCSS("--canvas-bg"),
-        line: getCSS("--canvas-line"),
-        accent: getCSS("--canvas-accent")
-      };
-
-      const rect = container.getBoundingClientRect();
-      this.sketch.resize(rect.width, rect.height, window.devicePixelRatio || 1);
-      this.sketch.draw(this.drawType || "", colors);
     }
   }
 

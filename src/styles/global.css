@@ -224,3 +224,177 @@ aside section:first-child .module-header {
   margin-top: 0;
   border-top: none;
 }
+/* =========================================
+   4. MARKDOWN CONTENT STYLES
+   ========================================= */
+.markdown-content {
+  color: var(--text-muted);
+  font-family: var(--font-pixel12);
+  font-size: 12px;
+  letter-spacing: 1px;
+  line-height: 1.6;
+}
+.markdown-content p {
+  margin-bottom: 12px;
+}
+.markdown-content a {
+  color: var(--highlight);
+}
+.markdown-content h1 {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text-main);
+  font-family: var(--font-pixel10);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--container-bg);
+  margin-bottom: 12px;
+}
+.markdown-content h2 {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--text-main);
+  font-family: var(--font-pixel10);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--container-bg);
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.markdown-content h3 {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--text-main);
+  font-family: var(--font-pixel10);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--container-bg);
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.markdown-content h4 {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text-main);
+  font-family: var(--font-pixel10);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--container-bg);
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.markdown-content h5 {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-main);
+  font-family: var(--font-pixel10);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--container-bg);
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.markdown-content h6 {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--text-main);
+  font-family: var(--font-pixel12);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--container-bg);
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.markdown-content ul {
+  list-style-type: square;
+  color: var(--text-muted);
+  line-height: 2;
+  margin-left: 30px;
+  margin-bottom: 12px;
+}
+.markdown-content ol {
+  color: var(--text-muted);
+  line-height: 2;
+  margin-left: 30px;
+  margin-bottom: 12px;
+}
+.markdown-content li ul {
+  margin-bottom: 0;
+}
+.markdown-content li ol {
+  margin-bottom: 0;
+}
+.markdown-content li p {
+  margin-bottom: 0;
+}
+.markdown-content hr {
+  border: 0;
+  border-top: 1px solid var(--container-bg);
+  margin: 12px 0;
+}
+.markdown-content blockquote {
+  border-left: 4px solid var(--highlight);
+  background: var(--cell-bg-alt);
+  padding: 8px 12px;
+  margin: 12px 0;
+  color: var(--text-muted);
+}
+.markdown-content blockquote p {
+  margin-bottom: 0;
+}
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 12px;
+  font-family: var(--font-pixel12);
+}
+.markdown-content table thead tr {
+  border-bottom: 1px solid var(--text-muted);
+  background: var(--cell-bg-alt);
+}
+.markdown-content table th {
+  padding: 4px;
+  text-align: left;
+  color: var(--text-main);
+}
+.markdown-content table th[align="right"] {
+  text-align: right;
+}
+.markdown-content table tbody tr {
+  border-bottom: 1px dotted var(--container-bg);
+  background: var(--cell-bg);
+}
+.markdown-content table tbody tr:nth-child(even) {
+  background: var(--cell-bg-alt);
+}
+.markdown-content table tbody tr:last-child {
+  border-bottom: none;
+}
+.markdown-content table td {
+  padding: 4px;
+}
+.markdown-content code {
+  border: 1px dotted var(--container-bg);
+  border-left: 2px solid var(--highlight);
+  padding: 0 3px;
+  color: var(--text-main);
+  background-color: var(--cell-bg-alt);
+  font-family: var(--font-mono);
+}
+.markdown-content .astro-code {
+  margin: 12px 0;
+  padding: 10px;
+}
+.markdown-content .astro-code code {
+  border: inherit;
+  border-left: inherit;
+  padding: 0;
+  color: inherit;
+  background-color: inherit;
+  font-family: var(--font-mono);
+}
+.markdown-content img {
+  max-width: 61.8%;
+}
+.markdown-content strong {
+  font-family: var(--font-pixel10);
+  color: var(--text-main);
+}
+.markdown-content em {
+  color: var(--text-main);
+}

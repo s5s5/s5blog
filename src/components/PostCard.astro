@@ -39,7 +39,7 @@ const { Content } = await render(post);
       //
       <a href={`/${post.id}#comments`}>3 评论</a>
     </div>
-    <div class="post-excerpt">
+    <div class="post-excerpt markdown-content">
       <Content />
     </div>
     <p>
@@ -89,11 +89,6 @@ const { Content } = await render(post);
     font-family: var(--font-pixel12);
   }
   .post-excerpt {
-    color: var(--text-muted);
-    font-family: var(--font-pixel12);
-    font-size: 12px;
-    letter-spacing: 1px;
-    line-height: 1.6;
     margin-bottom: 12px;
   }
   .btn-read {

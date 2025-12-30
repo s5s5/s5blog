@@ -5,13 +5,15 @@ import HeaderLink from "./HeaderLink.astro";
 
 <header class="layout-header">
   <div class="header-top-bar"></div>
-  <section class="site-area">
-    <h1 class="site-title">{SITE_TITLE}</h1>
-    <p class="site-description">
-      <span class="site-slash">//</span>
-      {SITE_DESCRIPTION}
-    </p>
-  </section>
+  <a href="/">
+    <section class="site-area">
+      <h1 class="site-title">{SITE_TITLE}</h1>
+      <p class="site-description">
+        <span class="site-slash">//</span>
+        {SITE_DESCRIPTION}
+      </p>
+    </section>
+  </a>
   <nav class="nav-bar" aria-label="Main Navigation">
     <HeaderLink class="nav-btn" href="/">Home</HeaderLink>
     <HeaderLink class="nav-btn" href="/category/first-category"

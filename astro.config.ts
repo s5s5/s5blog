@@ -15,7 +15,8 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [remarkBreaks, remarkCdnAssets],
     shikiConfig: {
-      theme: "github-dark"
+      // theme: "gruvbox-dark-soft"
+      theme: "catppuccin-frappe"
     }
   },
   integrations: [mdx(), sitemap()],

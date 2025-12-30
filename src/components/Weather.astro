@@ -214,11 +214,13 @@ const weatherLabel = `${weather} ${key.toUpperCase()} ${icon}`;
       const types = ["human", "dog", "cat", "chicken", "bird"];
       this.drawEntity(w * 0.382, groundY, colors.accent, this.random(types));
 
-      const entityCount = Math.floor(this.random(1, 6));
+      const entityCount = Math.floor(this.random(1, 5));
       for (let i = 1; i < entityCount; i++) {
         const ex = this.random(20, w - 20);
         this.drawEntity(ex, groundY, colors.line, this.random(types));
       }
+
+      this.drawEntity(this.random(20, w - 20), groundY, colors.line, "human");
 
       if (this.chance(0.5)) {
         this.drawUFO(this.random(w), this.random(h * 0.3), colors.line);
@@ -345,19 +347,35 @@ const weatherLabel = `${weather} ${key.toUpperCase()} ${icon}`;
       if (type === "human") {
         const dir = this.chance(0.5) ? 1 : -1;
 
-        const headCx = x + 2.5 * size;
-        const headCy = y - 14 * size;
-        const neckY = headCy + 1.5 * size;
-        const hipY = y - 7 * size;
+        // === NEW LOGIC: Body-First Approach (Tree Structure) ===
+        // 1. Root: Hip
+        const legLen = 7;
+        const hipX = x + 2.5 * size; // Centered
+        const hipY = y - legLen * size;
+
+        // 2. Body Vector (Hip -> Neck)
+        const bodyLen = 7; // Torso length
+        // bodyAngle: 0 = Right, -PI/2 = Up, PI/2 = Down
+        // Random slight lean (-0.2 to 0.2 rads from vertical)
+        const bodyAngle = -Math.PI / 2 + this.random(-1.2, 1.2);
+
+        const neckX = hipX + Math.cos(bodyAngle) * bodyLen * size;
+        const neckY = hipY + Math.sin(bodyAngle) * bodyLen * size;
+
+        // Draw Body
+        this.line(hipX, hipY, neckX, neckY);
+
+        // 3. Head (Attached to Neck)
+        const headDist = 1.5 * size; // Neck to Head center
+        const headX = neckX + Math.cos(bodyAngle) * headDist;
+        const headY = neckY + Math.sin(bodyAngle) * headDist;
 
         this.ctx.beginPath();
-        this.ctx.arc(headCx, headCy, 1.5 * size, 0, Math.PI * 2);
+        this.ctx.arc(headX, headY, 1.5 * size, 0, Math.PI * 2);
         this.ctx.fill();
 
-        const bodyLean = this.random(-0.5, 0.5) * size;
-        const shoulderX = headCx + bodyLean;
-        this.line(shoulderX, neckY, headCx, hipY);
-
+        // --- Helper for polar limbs (angle in radians, 0 is Down) ---
+        // Note: Now we base limbs off Hip and Neck coordinates calculated above
         const drawLimbPolar = (
           startX: number,
           startY: number,
@@ -366,6 +384,7 @@ const weatherLabel = `${weather} ${key.toUpperCase()} ${icon}`;
           angle2: number,
           len2: number
         ) => {
+          // Convert abstract angle (0=Down) to Canvas (0=Right) -> +PI/2
           const a1 = angle1 + Math.PI / 2;
           const x2 = startX + Math.cos(a1) * len1 * size;
           const y2 = startY + Math.sin(a1) * len1 * size;
@@ -381,71 +400,44 @@ const weatherLabel = `${weather} ${key.toUpperCase()} ${icon}`;
           this.ctx.stroke();
         };
 
+        // --- Config ---
         const armL1 = 2.8;
         const armL2 = 2.5;
         const legL1 = 3.8;
         const legL2 = 3.8;
 
-        const leg1A1 = this.random(-0.5, 0.5);
+        // --- Legs (Attached to Hip) ---
+        const leg1A1 = this.random(-1.5, 1.5);
         const leg1A2 = leg1A1 - dir * this.random(0.1, 1.2);
-        drawLimbPolar.call(this, headCx, hipY, leg1A1, legL1, leg1A2, legL2);
+        drawLimbPolar(hipX, hipY, leg1A1, legL1, leg1A2, legL2);
 
         const leg2A1 = this.random(-0.5, 0.5);
         const leg2A2 = leg2A1 - dir * this.random(0.1, 1.2);
-        drawLimbPolar.call(this, headCx, hipY, leg2A1, legL1, leg2A2, legL2);
+        drawLimbPolar(hipX, hipY, leg2A1, legL1, leg2A2, legL2);
 
+        // --- Arms (Attached to Neck/Shoulder) ---
         const skyArmIndex = this.chance(0.5) ? 0 : 1;
 
+        // Arm 1
         if (skyArmIndex === 0) {
           const a1 = -Math.PI + this.random(-0.6, 0.6);
           const a2 = a1 + this.random(-0.4, 0.4);
-          drawLimbPolar.call(
-            this,
-            shoulderX,
-            neckY + size,
-            a1,
-            armL1,
-            a2,
-            armL2
-          );
+          drawLimbPolar(neckX, neckY, a1, armL1, a2, armL2);
         } else {
           const a1 = this.random(-2, 2);
-          const a2 = a1 + this.random(-1, 1);
-          drawLimbPolar.call(
-            this,
-            shoulderX,
-            neckY + size,
-            a1,
-            armL1,
-            a2,
-            armL2
-          );
+          const a2 = a1 + this.random(-2, 2);
+          drawLimbPolar(neckX, neckY, a1, armL1, a2, armL2);
         }
 
+        // Arm 2
         if (skyArmIndex === 1) {
           const a1 = -Math.PI + this.random(-0.6, 0.6);
           const a2 = a1 + this.random(-0.4, 0.4);
-          drawLimbPolar.call(
-            this,
-            shoulderX,
-            neckY + size,
-            a1,
-            armL1,
-            a2,
-            armL2
-          );
+          drawLimbPolar(neckX, neckY, a1, armL1, a2, armL2);
         } else {
           const a1 = this.random(-2, 2);
-          const a2 = a1 + this.random(-1, 1);
-          drawLimbPolar.call(
-            this,
-            shoulderX,
-            neckY + size,
-            a1,
-            armL1,
-            a2,
-            armL2
-          );
+          const a2 = a1 + this.random(-2, 2);
+          drawLimbPolar(neckX, neckY, a1, armL1, a2, armL2);
         }
       } else if (type === "dog") {
         b(0, 6, 3, 3);

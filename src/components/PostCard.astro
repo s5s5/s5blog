@@ -1,6 +1,7 @@
 ---
 import { render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
+import type { WeatherName } from "../utils/weather";
 import FormattedDate from "./FormattedDate.astro";
 import Weather from "./Weather.astro";
 
@@ -15,7 +16,7 @@ const { Content } = await render(post);
 
 <article class="post-card">
   <a href={`/${post.id}`}>
-    <Weather weather={post.data.weather} />
+    <Weather weather={post.data.weather as WeatherName} />
   </a>
   <div class="post-content">
     <header>

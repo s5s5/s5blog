@@ -6,55 +6,77 @@ interface Props {
 const { postSlug } = Astro.props;
 ---
 
-<div id="comment-section">
-  <h2>发表评论</h2>
-  <form id="comment-form">
-    <div class="comment-section">
-      <h3 id="comment-reply-title" style="display: none;"></h3>
-      <button type="button" id="comment-cancel-reply" style="display:none;"
-        >取消回复</button
+<section id="comment-form" class="comment-form">
+  <form class="form" id="form">
+    <input type="hidden" name="s5s5_08" value={postSlug} />
+    <input type="hidden" id="s5s5_yb-input" name="s5s5_yb" value="" />
+
+    <div class="form-label">
+      <h3 id="comment-reply-title">LEAVE A REPLY:</h3>
+      <button
+        type="button"
+        id="comment-cancel-reply"
+        class="comment-cancel-reply"
+        style="display:none;"
       >
-
-      <input type="hidden" name="s5s5_08" value={postSlug} />
-      <input type="hidden" id="s5s5_yb-input" name="s5s5_yb" value="" />
-
-      <div class="global-error error" id="global-error" style="display: none;">
-      </div>
-
-      <div class="form-group">
-        <label for="s5s5_b9">内容 *</label>
-        <textarea id="s5s5_b9" name="s5s5_b9" rows="5" required></textarea>
-        <p class="error" id="error-s5s5_b9"></p>
-      </div>
-
-      <div class="form-group">
-        <label for="s5s5_g5">昵称 *</label>
-        <input type="text" id="s5s5_g5" name="s5s5_g5" required />
-        <p class="error" id="error-s5s5_g5"></p>
-      </div>
-
-      <div class="form-group">
-        <label for="s5s5_a6">邮箱 *</label>
-        <input type="email" id="s5s5_a6" name="s5s5_a6" required />
-        <p class="error" id="error-s5s5_a6"></p>
-      </div>
-
-      <div class="form-group">
-        <label for="s5s5_0b">网站</label>
-        <input type="url" id="s5s5_0b" name="s5s5_0b" />
-        <p class="error" id="error-s5s5_0b"></p>
-      </div>
-
-      <div class="form-group" id="name-group">
-        <label for="name">姓名 *</label>
-        <input type="text" id="name" name="name" />
-        <p class="error" id="error-name"></p>
-      </div>
-
-      <button type="submit" id="submit-btn">提交评论</button>
+        取消回复
+      </button>
     </div>
+
+    <label>
+      <textarea
+        id="s5s5_b9"
+        name="s5s5_b9"
+        rows="5"
+        required
+        class="form-input"
+        placeholder="Your Message..."></textarea>
+    </label>
+
+    <div class="form-row">
+      <label>
+        <input
+          type="text"
+          id="s5s5_g5"
+          name="s5s5_g5"
+          required
+          class="form-input"
+          placeholder="Name"
+        />
+      </label>
+      <label>
+        <input
+          type="email"
+          id="s5s5_a6"
+          name="s5s5_a6"
+          required
+          class="form-input"
+          placeholder="Email"
+        />
+      </label>
+    </div>
+    <div class="form-row">
+      <label>
+        <input
+          type="url"
+          id="s5s5_0b"
+          name="s5s5_0b"
+          class="form-input"
+          placeholder="Website (https://)"
+        />
+      </label>
+      <button type="submit" class="form-submit" id="submit-btn">
+        发表评论
+      </button>
+    </div>
+    <div class="global-error error" id="global-error" style="display: none;">
+    </div>
+    <p class="error" id="error-s5s5_b9"></p>
+    <p class="error" id="error-s5s5_g5"></p>
+    <p class="error" id="error-s5s5_a6"></p>
+    <p class="error" id="error-s5s5_0b"></p>
   </form>
-</div>
+</section>
 
 <script>
   import { actions, isInputError } from "astro:actions";
@@ -64,8 +86,8 @@ const { postSlug } = Astro.props;
    * 使用函数获取可以确保在脚本运行时元素存在，并方便复用
    */
   const elements = {
-    form: document.getElementById("comment-form") as HTMLFormElement,
-    container: document.getElementById("comment-section"),
+    form: document.getElementById("form") as HTMLFormElement,
+    container: document.getElementById("comment-form"),
     globalError: document.getElementById("global-error"),
     submitBtn: document.getElementById("submit-btn") as HTMLButtonElement,
     textarea: document.querySelector(
@@ -164,7 +186,6 @@ const { postSlug } = Astro.props;
     elements.replyTitle.innerText = `回复给 ${commentAuthor}`;
 
     // UI 变更
-    elements.replyTitle.style.display = "block";
     elements.cancelBtn.style.display = "inline";
 
     // 将表单移动到回复按钮下方
@@ -180,9 +201,8 @@ const { postSlug } = Astro.props;
   function resetReplyState() {
     elements.parentIdInput.value = "";
     elements.textarea.value = "";
-    elements.replyTitle.innerText = "";
+    elements.replyTitle.innerText = "LEAVE A REPLY:";
 
-    elements.replyTitle.style.display = "none";
     elements.cancelBtn.style.display = "none";
 
     // 将表单移回最底部的容器
@@ -225,53 +245,91 @@ const { postSlug } = Astro.props;
 </script>
 
 <style>
-  /* 样式保持不变，略微增加一些 display 控制的平滑过渡 */
-  .comment-section {
-    max-width: 600px;
-    margin: 2rem 0;
-    padding: 1.5rem;
-    border: 1px solid #eee;
-    border-radius: 8px;
+  .comment-form {
+    padding-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background: var(--cell-bg);
   }
-  .form-group {
-    margin-bottom: 1rem;
+  .form {
+    background: var(--cell-bg-alt);
+    padding: 15px;
+    border: 1px solid var(--container-bg);
   }
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
+  .form-label {
+    font-weight: normal;
+    font-family: var(--font-pixel10);
+    font-size: 10px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    color: var(--text-muted);
   }
-  input,
-  textarea {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  .form-label h3 {
+    font-weight: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    letter-spacing: inherit;
+    display: inline;
   }
-  button {
-    background-color: #333;
-    color: white;
-    padding: 0.5rem 1rem;
+  .comment-cancel-reply {
+    background: none;
     border: none;
+    color: var(--highlight);
+    font-family: var(--font-pixel10);
+    font-size: 10px;
+    letter-spacing: 1px;
     cursor: pointer;
+    margin-left: 10px;
   }
-  button:disabled {
-    background-color: #999;
-    cursor: not-allowed;
+  .comment-cancel-reply:hover {
+    text-decoration: underline;
   }
-  .error {
-    color: red;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-    min-height: 1.2em; /* 预留位置防止抖动 */
+  .form-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
   }
-  #name-group {
-    opacity: 0;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 0;
-    width: 0;
-    z-index: -1;
+  .form-row label {
+    flex: 1;
+  }
+  .form-input {
+    flex: 1;
+    border: 1px solid var(--container-bg);
+    padding: 6px;
+    font-size: 12px;
+    font-family: var(--font-pixel12);
+    letter-spacing: 2px;
+    background: var(--cell-bg);
+    color: var(--text-main);
+    width: 100%;
+  }
+  .form-input::placeholder {
+    font-family: var(--font-pixel10);
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  textarea.form-input {
+    width: 100%;
+    margin-bottom: 8px;
+    height: 60px;
+  }
+  .form-submit {
+    background: var(--highlight);
+    border: 1px solid var(--border-color);
+    color: var(--highlight-text);
+    padding: 0 20px;
+    cursor: pointer;
+    font-family: var(--font-pixel10);
+    font-size: 10px;
+    letter-spacing: 3px;
+    font-weight: bold;
+    flex: 0 0 auto;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+  }
+  .form-submit:hover {
+    background: var(--cell-bg);
+    color: var(--text-main);
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
   }
 </style>

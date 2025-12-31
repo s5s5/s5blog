@@ -7,3 +7,4 @@ export const SITE_DESCRIPTION =
 export const BEI_AN = "蜀ICP备16014041号-1";
 export const TIMEZONE = "Asia/Shanghai";
 export const CDN_URL = "https://pub-bb954768211c43c8b9f7029411c7b953.r2.dev";
+export const AUTHOR_EMAIL = "s5s5cn@gmail.com";

@@ -1,4 +1,7 @@
 ---
+import { AUTHOR_EMAIL } from "../consts.ts";
+import Avatar from "./Avatar.astro";
+
 type Props = {
   replies: CommentNode[];
 };
@@ -19,58 +22,41 @@ type CommentNode = RawComment & {
   replies && replies.length > 0 && (
     <>
       {replies.map((reply: CommentNode) => (
-        <div class="comment">
-          <p>
-            <strong>{reply.authorName}</strong> at
-            <time>{new Date(reply.createdAt).toLocaleString()}</time> 说:
-          </p>
-          <p>{reply.content}</p>
-          <button
-            type="button"
-            class="comment-reply-btn"
-            data-comment-id={reply.id}
-            data-comment-author={reply.authorName}
-          >
-            回复
-          </button>
-          {reply.replies && reply.replies.length > 0 && (
-            <div class="comment-replies">
-              <Astro.self replies={reply.replies} />
-            </div>
-          )}
-        </div>
+        <li class="comment-item">
+          <article>
+            <footer class="comment-head">
+              <Avatar
+                class="comment-avatar"
+                email={reply.authorEmail}
+                alt={reply.authorName}
+              />
+              <span class="comment-user">
+                {reply.authorName}
+                {reply.authorEmail === AUTHOR_EMAIL ? (
+                  <span class="comment-author-badge">AUTHOR</span>
+                ) : (
+                  ""
+                )}
+              </span>
+              <span class="comment-date">{reply.createdAt}</span>
+            </footer>
+            <p class="comment-body">{reply.content}</p>
+            <button
+              type="button"
+              class="comment-reply-btn"
+              data-comment-id={reply.id}
+              data-comment-author={reply.authorName}
+            >
+              回复
+            </button>
+            {reply.replies && reply.replies.length > 0 && (
+              <ol class="comment-replies">
+                <Astro.self replies={reply.replies} />
+              </ol>
+            )}
+          </article>
+        </li>
       ))}
     </>
   )
 }
-
-<style>
-  .comment-replies {
-    margin-top: 1rem;
-    margin-left: 2rem;
-    padding-left: 1rem;
-    border-left: 2px solid #e0e0e0;
-  }
-
-  .comment-replies .comment {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .comment {
-    padding: 1rem 0;
-  }
-
-  .comment p {
-    margin: 0.5rem 0;
-  }
-
-  .comment strong {
-    font-weight: 600;
-  }
-
-  .comment time {
-    color: #666;
-    font-size: 0.9em;
-  }
-</style>

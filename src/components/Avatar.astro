@@ -1,0 +1,38 @@
+---
+import { createHash } from "node:crypto";
+
+type Props = {
+  email: string;
+  size?: number;
+  alt?: string;
+  class?: string;
+  defaultImage?:
+    | "mp"
+    | "identicon"
+    | "monsterid"
+    | "wavatar"
+    | "retro"
+    | "robohash"
+    | "blank"
+    | "404";
+  rating?: "g" | "pg" | "r" | "x";
+};
+
+const {
+  email,
+  size = 72,
+  alt = "User Avatar",
+  class: className = "",
+  defaultImage = "retro",
+  rating = "g",
+  ...rest
+} = Astro.props;
+
+const trimmedEmail = email.trim().toLowerCase();
+
+const hash = createHash("md5").update(trimmedEmail).digest("hex");
+
+const url = `https://s.gravatar.com/avatar/${hash}?s=${size}&d=${defaultImage}&r=${rating}`;
+---
+
+<img src={url} alt={alt} class={className} {...rest} />

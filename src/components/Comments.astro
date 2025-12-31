@@ -1,6 +1,5 @@
 ---
-// import type { Comment } from "../types";
-import CommentForm from "./CommentForm.astro";
+import CommentCount from "./CommentCount.astro";
 import CommentReplies from "./CommentReplies.astro";
 
 type Props = {
@@ -60,66 +59,126 @@ topLevelComments.forEach((comment) => {
 });
 ---
 
-{
-  comments.length === 0 ? (
-    <p class="no-comments">
-      No comments yet. Be the first to share your thoughts!
-    </p>
-  ) : (
-    <div class="comments-list">
-      {topLevelComments.map((comment) => (
-        <div class="comment">
-          <p>
-            <strong>{comment.authorName}</strong> at
-            <time>{new Date(comment.createdAt).toLocaleString()}</time> 说:
+<section class="comment-section" id="comments">
+  <h2 class="comment-title">
+    // 评论列表 (<CommentCount postSlug={postSlug} server:defer />)
+    <div>
+      {
+        comments.length === 0 ? (
+          <p class="no-comments">
+            No comments yet. Be the first to share your thoughts!
           </p>
-          <p>{comment.content}</p>
-          <button
-            type="button"
-            class="comment-reply-btn"
-            data-comment-id={comment.id}
-            data-comment-author={comment.authorName}
-          >
-            回复
-          </button>
-          {comment.replies && comment.replies.length > 0 && (
-            <div class="comment-replies">
-              <CommentReplies replies={comment.replies} />
+        ) : (
+          <>
+            <div class="comments-header">
+              <p class="comments-count">
+                Total public comments: <strong>{10}</strong>
+              </p>
             </div>
-          )}
-        </div>
-      ))}
+            <div class="comments-list">
+              {topLevelComments.map((comment) => (
+                <div class="comment">
+                  <p>
+                    <strong>{comment.authorName}</strong> at
+                    <time>
+                      {new Date(comment.createdAt).toLocaleString()}
+                    </time>{" "}
+                    说:
+                  </p>
+                  <p>{comment.content}</p>
+                  <button
+                    type="button"
+                    class="comment-reply-btn"
+                    data-comment-id={comment.id}
+                    data-comment-author={comment.authorName}
+                  >
+                    回复
+                  </button>
+                  {comment.replies && comment.replies.length > 0 && (
+                    <div class="comment-replies">
+                      <CommentReplies replies={comment.replies} />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        )
+      }
     </div>
-  )
-}
 
-<style>
-  .comment-replies {
-    margin-top: 1rem;
-    margin-left: 2rem;
-    padding-left: 1rem;
-    border-left: 2px solid #e0e0e0;
-  }
-
-  .comment-replies .comment {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .comment {
-    padding: 1rem 0;
-  }
-
-  .comment p {
-    margin: 0.5rem 0;
-  }
-
-  .comment strong {
-    font-weight: 600;
-  }
-
-  .comment time {
-    color: #666;
-    font-size: 0.9em;
-  }
-</style>
+    <style>
+      .comment-section {
+        margin-top: 30px;
+        border-top: 1px dotted var(--container-bg);
+        padding: 20px;
+        background: var(--cell-bg);
+      }
+      .comment-title {
+        font-weight: bold;
+        font-family: var(--font-pixel12);
+        font-size: 12px;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+        color: var(--text-main);
+        background: var(--cell-bg-alt);
+        display: inline-block;
+        padding: 2px 6px;
+      }
+      .comment-item {
+        margin-bottom: 15px;
+        font-family: var(--font-pixel12);
+        font-size: 12px;
+        letter-spacing: 1px;
+        list-style-type: none;
+        position: relative;
+        padding-left: 46px;
+      }
+      .comment-head {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 4px;
+        border-bottom: 1px solid var(--cell-bg-alt);
+        padding-bottom: 2px;
+      }
+      .comment-avatar {
+        object-fit: cover; /* 可选: cover | contain | fill | none | scale-down */
+        position: absolute;
+        top: 2px;
+        left: 0;
+        width: 36px;
+        height: 36px;
+      }
+      .comment-user {
+        font-family: var(--font-pixel10);
+        font-size: 10px;
+        font-weight: bold;
+        color: var(--text-main);
+      }
+      .comment-author-badge {
+        background: var(--text-main);
+        color: var(--cell-bg);
+        padding: 0 2px;
+        font-family: var(--font-pixel8);
+        font-size: 8px;
+        font-weight: normal;
+        margin-left: 5px;
+      }
+      .comment-date {
+        color: var(--text-muted);
+        font-family: var(--font-pixel8);
+        font-size: 8px;
+      }
+      .comment-body {
+        color: var(--text-muted);
+        line-height: 1.4;
+        font-size: 12px;
+      }
+      .comment-replies {
+        margin-top: 10px;
+        padding-left: 10px;
+        border-left: 1px dotted var(--container-bg);
+      }
+    </style>
+  </h2>
+</section>

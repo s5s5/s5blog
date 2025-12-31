@@ -19,7 +19,7 @@ const post = Astro.props;
 ---
 
 <Layout>
-  <PostCard post={post} />
-  <Comments postSlug={post.id} server:defer />
-  <CommentForm postSlug={post.id} />
+  <PostCard post={post} inPostPage />
+  <Comments postSlug={String(post.id)} server:defer />
+  <CommentForm postSlug={String(post.id)} />
 </Layout>

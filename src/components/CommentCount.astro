@@ -1,0 +1,17 @@
+---
+import { and, count, eq } from "drizzle-orm";
+import { comments } from "../db/schema.ts";
+
+type Props = {
+  postSlug: string;
+};
+const { db } = Astro.locals;
+const { postSlug } = Astro.props;
+
+const [result] = await db
+  .select({ count: count() })
+  .from(comments)
+  .where(and(eq(comments.postSlug, postSlug), eq(comments.status, "public")));
+---
+
+<>{result?.count || 0}</>

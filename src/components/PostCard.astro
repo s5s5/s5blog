@@ -2,27 +2,41 @@
 import { render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import type { WeatherName } from "../utils/weather";
+import CommentCount from "./CommentCount.astro";
 import FormattedDate from "./FormattedDate.astro";
 import Weather from "./Weather.astro";
 
 type Props = {
   post: CollectionEntry<"blog">;
+  inPostPage?: boolean;
 };
 
-const { post } = Astro.props;
+const { post, inPostPage = false } = Astro.props;
 
 const { Content } = await render(post);
 ---
 
-<article class="post-card">
-  <a href={`/${post.id}`}>
-    <Weather weather={post.data.weather as WeatherName} />
-  </a>
+<article class=`post-card${inPostPage ? " in-post-page" : ""}`>
+  {
+    inPostPage ? (
+      <Weather weather={post.data.weather as WeatherName} />
+    ) : (
+      <a href={`/${post.id}`}>
+        <Weather weather={post.data.weather as WeatherName} />
+      </a>
+    )
+  }
   <div class="post-content">
     <header>
       <h2 class="post-title">
         <span class="post-title-slash">//</span>
-        <a href={`/${post.id}`}>{post.data.title}</a>
+        {
+          inPostPage ? (
+            <>{post.data.title}</>
+          ) : (
+            <a href={`/${post.id}`}>{post.data.title}</a>
+          )
+        }
       </h2>
     </header>
     <div class="post-meta">
@@ -37,14 +51,22 @@ const { Content } = await render(post);
         {post.data.category}
       </a>
       //
-      <a href={`/${post.id}#comments`}>3 评论</a>
+      <a href={`/${post.id}#comments`}
+        ><CommentCount postSlug={String(post.id)} server:defer /> 评论</a
+      >
     </div>
     <div class="post-excerpt markdown-content">
       <Content />
     </div>
-    <p>
-      <a href={`/${post.id}`} class="btn-read"> 阅读全文 &gt;&gt; </a>
-    </p>
+    {
+      !inPostPage && (
+        <p>
+          <a href={`/${post.id}`} class="btn-read">
+            阅读全文 &gt;&gt;
+          </a>
+        </p>
+      )
+    }
   </div>
 </article>
 
@@ -55,6 +77,9 @@ const { Content } = await render(post);
     margin-bottom: 0;
     background: var(--cell-bg);
     padding-bottom: 20px;
+  }
+  .post-card.in-post-page {
+    border-bottom-style: dotted;
   }
   .post-card:last-child {
     border-bottom: none;

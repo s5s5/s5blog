@@ -3,6 +3,7 @@ import { getCollection, render, type CollectionEntry } from "astro:content";
 import CommentForm from "../components/CommentForm.astro";
 import Comments from "../components/Comments.astro";
 import PostCard from "../components/PostCard.astro";
+import PostNav from "../components/PostNav.astro";
 import Layout from "../layouts/Layout.astro";
 
 type Props = CollectionEntry<"blog">;
@@ -20,6 +21,7 @@ const post = Astro.props;
 
 <Layout>
   <PostCard post={post} inPostPage />
-  <Comments postSlug={String(post.id)} server:defer />
-  <CommentForm postSlug={String(post.id)} />
+  <PostNav postSlug={post.id} />
+  <Comments postSlug={post.id} server:defer />
+  <CommentForm postSlug={post.id} />
 </Layout>

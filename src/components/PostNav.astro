@@ -1,0 +1,74 @@
+---
+import { getCollection } from "astro:content";
+
+type Props = {
+  postSlug: string;
+};
+
+const { postSlug } = Astro.props;
+
+// 1. 获取所有文章
+const posts = await getCollection("blog");
+
+// 2. 排序 (必须与列表页排序逻辑一致，通常是按日期降序)
+// 最新的文章在 index 0
+const sortedPosts = posts.sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+
+// 3. 找到当前文章的索引
+const currentIndex = sortedPosts.findIndex((post) => post.id === postSlug);
+
+// 4. 计算上一篇和下一篇
+// index + 1 是更旧的文章 (Previous)
+const prevPost =
+  currentIndex + 1 < sortedPosts.length ? sortedPosts[currentIndex + 1] : null;
+
+// index - 1 是更新的文章 (Next)
+const nextPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : null;
+---
+
+<nav class="post-nav">
+  <div class="nav-item prev">
+    {
+      prevPost && (
+        <a href={`/${prevPost.id}`} rel="prev">
+          <small>« 上一篇</small>
+          <span>{prevPost.data.title}</span>
+        </a>
+      )
+    }
+  </div>
+
+  <div class="nav-item next">
+    {
+      nextPost && (
+        <a href={`/${nextPost.id}`} rel="next">
+          <span>{nextPost.data.title}</span>
+          <small>下一篇 »</small>
+        </a>
+      )
+    }
+  </div>
+</nav>
+
+<style>
+  .post-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin: 0 5px;
+    font-family: var(--font-pixel10);
+    font-size: 10px;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .next {
+    text-align: right;
+    align-items: flex-end;
+  }
+</style>

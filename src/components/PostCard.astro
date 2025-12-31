@@ -52,7 +52,7 @@ const { Content } = await render(post);
       </a>
       //
       <a href={`/${post.id}#comments`}
-        ><CommentCount postSlug={String(post.id)} server:defer /> 评论</a
+        ><CommentCount postSlug={post.id} server:defer /> 评论</a
       >
     </div>
     <div class="post-excerpt markdown-content">

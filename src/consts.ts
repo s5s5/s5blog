@@ -1,3 +1,4 @@
+export const SITE_URL = "https://s5s5.me";
 export const SITE_TITLE = "[米随随] s5s5";
 export const SITE_DESCRIPTION =
   "本站是基于人类交互的，您的想象决定了我们的应用！";

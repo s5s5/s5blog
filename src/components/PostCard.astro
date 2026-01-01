@@ -2,6 +2,7 @@
 import { render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import { AUTHOR, AUTHOR_CN } from "../consts.ts";
+import { getExcerpt } from "../utils/getExcerpt.ts";
 import type { WeatherName } from "../utils/weather";
 import CommentCount from "./CommentCount.astro";
 import FormattedDate from "./FormattedDate.astro";
@@ -16,6 +17,7 @@ type Props = {
 const { post, isInPostPage = false, isExcerpt = false } = Astro.props;
 
 const { Content } = await render(post);
+const contentPreview = getExcerpt(post.body ?? "");
 ---
 
 <article class=`post-card${isInPostPage ? " in-post-page" : ""}`>
@@ -60,8 +62,8 @@ const { Content } = await render(post);
         <CommentCount postSlug={post.id} server:defer /> 评论
       </a>
     </div>
-    <div class=`markdown-content${isExcerpt ? " post-excerpt" : ""}` }>
-      <Content />
+    <div class="markdown-content">
+      {isExcerpt ? <p>{contentPreview}</p> : <Content />}
       {
         isInPostPage && (
           <p class="post-signature">
@@ -146,16 +148,5 @@ const { Content } = await render(post);
   }
   .post-signature {
     text-align: right;
-  }
-  .post-excerpt {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.6;
-    margin-bottom: 1rem;
-  }
-  .post-excerpt :global(p:first-child) {
-    margin-top: 0;
   }
 </style>

@@ -9,19 +9,23 @@ import Weather from "./Weather.astro";
 
 type Props = {
   post: CollectionEntry<"blog">;
-  inPostPage?: boolean;
+  isInPostPage?: boolean;
+  isExcerpt?: boolean;
 };
 
-const { post, inPostPage = false } = Astro.props;
+const { post, isInPostPage = false, isExcerpt = false } = Astro.props;
 
 const { Content } = await render(post);
 ---
 
-<article class=`post-card${inPostPage ? " in-post-page" : ""}`>
+<article class=`post-card${isInPostPage ? " in-post-page" : ""}`>
   {
-    inPostPage ? (
+    !isExcerpt && isInPostPage && (
       <Weather weather={post.data.weather as WeatherName} />
-    ) : (
+    )
+  }
+  {
+    !isExcerpt && !isInPostPage && (
       <a href={`/${post.id}`}>
         <Weather weather={post.data.weather as WeatherName} />
       </a>
@@ -32,7 +36,7 @@ const { Content } = await render(post);
       <h2 class="post-title">
         <span class="post-title-slash">//</span>
         {
-          inPostPage ? (
+          isInPostPage ? (
             <>{post.data.title}</>
           ) : (
             <a href={`/${post.id}`}>{post.data.title}</a>
@@ -52,20 +56,24 @@ const { Content } = await render(post);
         {post.data.category}
       </a>
       //
-      <a href={`/${post.id}#comments`}
-        ><CommentCount postSlug={post.id} server:defer /> 评论</a
-      >
+      <a href={`/${post.id}#comments`}>
+        <CommentCount postSlug={post.id} server:defer /> 评论
+      </a>
     </div>
-    <div class="post-excerpt markdown-content">
+    <div class=`markdown-content${isExcerpt ? " post-excerpt" : ""}` }>
       <Content />
-      <p class="post-signature">
-        {AUTHOR_CN}
-        <FormattedDate date={post.data.pubDate} showLunar />
-        书于{post.data.location}
-      </p>
+      {
+        isInPostPage && (
+          <p class="post-signature">
+            {AUTHOR_CN}
+            <FormattedDate date={post.data.pubDate} showLunar />
+            书于{post.data.location}
+          </p>
+        )
+      }
     </div>
     {
-      !inPostPage && (
+      !isInPostPage && (
         <p>
           <a href={`/${post.id}`} class="btn-read">
             阅读全文 »
@@ -119,9 +127,6 @@ const { Content } = await render(post);
   .post-meta a:last-child {
     font-family: var(--font-pixel12);
   }
-  .post-excerpt {
-    margin-bottom: 12px;
-  }
   .btn-read {
     display: inline-block;
     background: var(--cell-bg);
@@ -141,5 +146,16 @@ const { Content } = await render(post);
   }
   .post-signature {
     text-align: right;
+  }
+  .post-excerpt {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  .post-excerpt :global(p:first-child) {
+    margin-top: 0;
   }
 </style>

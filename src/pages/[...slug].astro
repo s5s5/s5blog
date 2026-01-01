@@ -19,8 +19,8 @@ export async function getStaticPaths() {
 const post = Astro.props;
 ---
 
-<Layout>
-  <PostCard post={post} inPostPage />
+<Layout title={post.data.title}>
+  <PostCard post={post} isInPostPage />
   <PostNav postSlug={post.id} />
   <Comments postSlug={post.id} server:defer />
   <CommentForm postSlug={post.id} />

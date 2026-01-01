@@ -5,7 +5,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
 
 export async function GET(context: APIContext) {
   const posts = (await getCollection("blog")).sort(
-    (a, b) => Number(b.id) - Number(a.id)
+    (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
   );
   return rss({
     title: SITE_TITLE,

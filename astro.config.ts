@@ -20,6 +20,10 @@ export default defineConfig({
     }
   },
   integrations: [mdx(), sitemap()],
+  redirects: {
+    "/category/first-category": "/category/first-category/1",
+    "/category/other": "/category/other/1"
+  },
   adapter: cloudflare({
     platformProxy: {
       enabled: true

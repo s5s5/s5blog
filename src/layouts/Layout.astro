@@ -1,5 +1,4 @@
 ---
-import type { CollectionEntry } from "astro:content";
 import Badges from "../components/Badges.astro";
 import BaseHead from "../components/BaseHead.astro";
 import Calendar from "../components/Calendar.astro";
@@ -11,7 +10,10 @@ import Profile from "../components/Profile.astro";
 import Settings from "../components/Settings.astro";
 import Stats from "../components/Stats.astro";
 
-type Props = CollectionEntry<"blog">["data"];
+type Props = {
+  title?: string;
+  description?: string;
+};
 
 const { title, description } = Astro.props;
 ---

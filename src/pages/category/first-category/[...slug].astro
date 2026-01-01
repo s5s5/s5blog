@@ -1,14 +1,14 @@
 ---
 import { getCollection } from "astro:content";
-import Pagination from "../../components/Pagination.astro";
-import PostCard from "../../components/PostCard.astro";
-import Layout from "../../layouts/Layout.astro";
+import Pagination from "../../../components/Pagination.astro";
+import PostCard from "../../../components/PostCard.astro";
+import Layout from "../../../layouts/Layout.astro";
 import {
   calculateTotalPages,
   getNextPageUrl,
   getPrevPageUrl,
   POSTS_PER_PAGE
-} from "../../utils/pagination";
+} from "../../../utils/pagination";
 
 type Props = {
   page: number;
@@ -17,7 +17,9 @@ type Props = {
 };
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog");
+  const posts = (await getCollection("blog")).filter(
+    (post) => post.data.category === "First Category"
+  );
   const sortedPosts = posts.sort(
     (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
   );

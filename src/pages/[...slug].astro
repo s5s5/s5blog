@@ -1,20 +1,20 @@
 ---
-import { getCollection, render, type CollectionEntry } from "astro:content";
+import { getCollection, type CollectionEntry } from "astro:content";
 import CommentForm from "../components/CommentForm.astro";
 import Comments from "../components/Comments.astro";
 import PostCard from "../components/PostCard.astro";
 import PostNav from "../components/PostNav.astro";
 import Layout from "../layouts/Layout.astro";
 
-type Props = CollectionEntry<"blog">;
-
-export async function getStaticPaths() {
+export const getStaticPaths = async () => {
   const posts = await getCollection("blog");
   return posts.map((post) => ({
     params: { slug: post.id },
     props: post
   }));
-}
+};
+
+type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
 ---

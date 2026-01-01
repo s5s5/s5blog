@@ -10,12 +10,6 @@ import {
   POSTS_PER_PAGE
 } from "../../../utils/pagination";
 
-type Props = {
-  page: number;
-  posts: any[];
-  totalPages: number;
-};
-
 export async function getStaticPaths() {
   const posts = (await getCollection("blog")).filter(
     (post) => post.data.category === "First Category"
@@ -34,6 +28,12 @@ export async function getStaticPaths() {
     }
   }));
 }
+
+type Props = {
+  page: number;
+  posts: any[];
+  totalPages: number;
+};
 
 const { page, posts, totalPages } = Astro.props;
 const hasPrevPage = page > 1;

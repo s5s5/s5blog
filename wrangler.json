@@ -19,8 +19,8 @@
     {
       "binding": "DB2",
       "database_name": "s5-blog-comments",
-      "database_id": "ea67f3b3-95e7-4b80-bcb1-78ca81201d21",
-      "remote": true
+      "database_id": "ea67f3b3-95e7-4b80-bcb1-78ca81201d21"
+      // ,"remote": true
     }
   ],
   "vars": {

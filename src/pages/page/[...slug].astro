@@ -6,6 +6,7 @@ import FormattedDate from "../../components/FormattedDate.astro";
 import Header from "../../components/Header.astro";
 import Pagination from "../../components/Pagination.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import { AUTHOR } from "../../consts.ts";
 import {
   calculateTotalPages,
   getNextPageUrl,
@@ -62,7 +63,7 @@ const nextPageUrl = getNextPageUrl(page);
                   <a href={`/${post.id}`}>{post.data.title}</a>
                 </h2>
                 <div>
-                  <span class="author">s5s5</span>
+                  <span class="author">{AUTHOR}</span>
                   <FormattedDate date={post.data.pubDate} />
                   {post.data.category && (
                     <span class="category">{post.data.category}</span>

@@ -12,7 +12,7 @@ const { postSlug } = Astro.props;
     <input type="hidden" id="s5s5_yb-input" name="s5s5_yb" value="" />
 
     <div class="form-label">
-      <h3 id="comment-reply-title">LEAVE A REPLY:</h3>
+      <h3 id="comment-reply-title">发表评论：</h3>
       <button
         type="button"
         id="comment-cancel-reply"
@@ -30,7 +30,7 @@ const { postSlug } = Astro.props;
         rows="5"
         required
         class="form-input"
-        placeholder="Your Message..."></textarea>
+        placeholder="⸜(｡˃ ᵕ ˂ )⸝♡ ..."></textarea>
     </label>
 
     <div class="form-row">
@@ -41,7 +41,7 @@ const { postSlug } = Astro.props;
           name="s5s5_g5"
           required
           class="form-input"
-          placeholder="Name"
+          placeholder="☺ 署名"
         />
       </label>
       <label>
@@ -51,7 +51,7 @@ const { postSlug } = Astro.props;
           name="s5s5_a6"
           required
           class="form-input"
-          placeholder="Email"
+          placeholder="✉ 邮件 (不会公开)"
         />
       </label>
     </div>
@@ -62,7 +62,7 @@ const { postSlug } = Astro.props;
           id="s5s5_0b"
           name="s5s5_0b"
           class="form-input"
-          placeholder="Website (https://)"
+          placeholder="☄ 网站 (选填)"
         />
       </label>
       <button type="submit" class="form-submit" id="submit-btn">
@@ -201,7 +201,7 @@ const { postSlug } = Astro.props;
   function resetReplyState() {
     elements.parentIdInput.value = "";
     elements.textarea.value = "";
-    elements.replyTitle.innerText = "LEAVE A REPLY:";
+    elements.replyTitle.innerText = "发表评论：";
 
     elements.cancelBtn.style.display = "none";
 

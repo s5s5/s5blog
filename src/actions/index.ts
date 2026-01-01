@@ -5,8 +5,6 @@ import { comments } from "../db/schema";
 import { requireAdmin } from "../lib/guard.ts";
 import { getClientIp } from "../utils/ip.ts";
 
-const MY_EMAIL = "s5s5n@gmail.com";
-
 export const server = {
   comment: {
     submit: defineAction({

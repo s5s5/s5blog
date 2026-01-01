@@ -1,6 +1,7 @@
 ---
 import { render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
+import { AUTHOR, AUTHOR_CN } from "../consts.ts";
 import type { WeatherName } from "../utils/weather";
 import CommentCount from "./CommentCount.astro";
 import FormattedDate from "./FormattedDate.astro";
@@ -44,7 +45,7 @@ const { Content } = await render(post);
       <a href={`/${post.id}`}>
         <FormattedDate date={post.data.pubDate} />
       </a>
-      // BY s5s5 // IN
+      // BY {AUTHOR} // IN
       <a
         href={`/category/${(post.data.category ?? "").toLowerCase().replace(" ", "-")}`}
       >
@@ -57,12 +58,17 @@ const { Content } = await render(post);
     </div>
     <div class="post-excerpt markdown-content">
       <Content />
+      <p class="post-signature">
+        {AUTHOR_CN}
+        <FormattedDate date={post.data.pubDate} showLunar />
+        书于{post.data.location}
+      </p>
     </div>
     {
       !inPostPage && (
         <p>
           <a href={`/${post.id}`} class="btn-read">
-            阅读全文 &gt;&gt;
+            阅读全文 »
           </a>
         </p>
       )
@@ -132,5 +138,8 @@ const { Content } = await render(post);
     border-color: var(--border-color);
     color: var(--highlight-text);
     box-shadow: 1px 1px 0 var(--border-color);
+  }
+  .post-signature {
+    text-align: right;
   }
 </style>

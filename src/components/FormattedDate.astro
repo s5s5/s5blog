@@ -1,15 +1,26 @@
 ---
 import { format } from "date-fns";
+import lunisolar from "lunisolar";
 
 type Props = {
   date: Date;
+  showLunar?: boolean;
 };
 
-const { date } = Astro.props;
+const { date, showLunar = false } = Astro.props;
 
-const displayDate = format(date, "yyyy-MM-dd HH:mm");
+const formattedGregorian = format(date, "yyyy-MM-dd HH:mm");
+
+// 岁次: 固定文本，意思：时值 丙午正月初一子 这一年
+// cY: 农历年八字年柱 (丙午)
+// lM: 农历月份中文名称 (正月)
+// lD: 农历日期中文名称 (初一)
+// lH: 农历时辰中文名称 (子)时
+const formattedLunar = lunisolar(date).format("岁次cYlMlDlH时");
+
+const displayText = showLunar ? formattedLunar : formattedGregorian;
 ---
 
 <time datetime={date.toISOString()}>
-  {displayDate}
+  {displayText}
 </time>

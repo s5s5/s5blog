@@ -1,5 +1,6 @@
 ---
 import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+import { CATEGORIES } from "../consts.ts";
 import HeaderLink from "./HeaderLink.astro";
 ---
 
@@ -16,10 +17,13 @@ import HeaderLink from "./HeaderLink.astro";
   </a>
   <nav class="nav-bar" aria-label="Main Navigation">
     <HeaderLink class="nav-btn" href="/">Home</HeaderLink>
-    <HeaderLink class="nav-btn" href="/category/first-category">
-      First Category
-    </HeaderLink>
-    <HeaderLink class="nav-btn" href="/category/other">Other</HeaderLink>
+    {
+      CATEGORIES.map((item) => (
+        <HeaderLink class="nav-btn" href={item.path}>
+          {item.name}
+        </HeaderLink>
+      ))
+    }
     <HeaderLink class="nav-btn" href="/about">About</HeaderLink>
   </nav>
 </header>

@@ -1,13 +1,16 @@
 ---
 import type { GetStaticPaths, Page } from "astro";
 import { getCollection, type CollectionEntry } from "astro:content";
-import Pagination from "../../components/Pagination.astro";
-import PostCard from "../../components/PostCard.astro";
-import Layout from "../../layouts/Layout.astro";
-import { POSTS_PER_PAGE } from "../../utils/pagination";
+import Pagination from "../../../components/Pagination.astro";
+import PostCard from "../../../components/PostCard.astro";
+import { CATEGORIES } from "../../../consts.ts";
+import Layout from "../../../layouts/Layout.astro";
+import { POSTS_PER_PAGE } from "../../../utils/pagination";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const posts = await getCollection("blog");
+  const posts = (await getCollection("blog")).filter(
+    (post) => post.data.category === CATEGORIES[1].name
+  );
   const sortedPosts = posts.sort(
     (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
   );
@@ -21,7 +24,9 @@ type Props = {
 const { page } = Astro.props;
 ---
 
-<Layout title={`第 ${page.currentPage} 页 / 共 ${page.lastPage} 页`}>
+<Layout
+  title={`第 ${page.currentPage} 页 / 共 ${page.lastPage} 页 - ${CATEGORIES[1].name}`}
+>
   {
     page.data.map((post) => {
       return <PostCard post={post} isExcerpt />;

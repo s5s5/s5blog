@@ -1,83 +1,290 @@
 ---
+// --- Server Side (Frontmatter) ---
+import { getCollection } from "astro:content";
 
+// 1. 获取所有文章
+// 假设你的 content collection 名字是 'blog'，如果是 'posts' 请自行修改
+const allPosts = await getCollection("blog");
+
+// 2. 构建数据传输对象 (DTO)
+// 按月分组的结构：{ "2025-12": [...posts], "2025-11": [...posts] }
+// 性能更优：渲染某月时只遍历该月的数据，不需要扫描整个数组
+const postByMonth: Record<string, Array<{ date: string; link: string }>> = {};
+
+allPosts.forEach((post) => {
+  const d = new Date(post.data.pubDate);
+  const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+
+  if (!postByMonth[monthStr]) {
+    postByMonth[monthStr] = [];
+  }
+  postByMonth[monthStr].push({
+    date: dateStr,
+    link: `/${post.id}`
+  });
+});
+
+// 按月份排序每月内的文章（可选，增强确定性）
+Object.keys(postByMonth).forEach((month) => {
+  postByMonth[month].sort((a, b) => a.date.localeCompare(b.date));
+});
+
+// 序列化数据，以便传递给客户端 script
+const initialData = JSON.stringify(postByMonth);
 ---
 
-<section>
+<section class="calendar-widget" data-posts={initialData}>
   <h3 class="module-header">:: CALENDAR</h3>
   <div class="cell-pad" style="padding: 10px 8px">
     <div class="calendar-wrapper">
       <div class="cal-nav">
-        <button type="button" class="cal-btn">&lt;</button>
-        <span style="font-weight: bold">DEC 2025</span>
-        <button type="button" class="cal-btn">&gt;</button>
+        <button type="button" class="cal-btn" id="cal-prev">&lt;</button>
+        <span class="cal-year" id="cal-label">LOADING...</span>
+        <button type="button" class="cal-btn" id="cal-next">&gt;</button>
       </div>
+
       <nav aria-label="Calendar Navigation">
         <table class="cal-table">
           <thead>
             <tr>
-              <td>S</td>
-              <td>M</td>
-              <td>T</td>
-              <td>W</td>
-              <td>T</td>
-              <td>F</td>
-              <td>S</td>
+              <td>S</td><td>M</td><td>T</td><td>W</td><td>T</td><td>F</td><td
+                >S</td
+              >
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td class="cal-outside"> 30 </td>
-              <td>1</td>
-              <td>2</td>
-              <td>3</td>
-              <td>4</td>
-              <td class="cal-has-post">5</td>
-              <td>6</td>
-            </tr>
-            <tr>
-              <td>7</td>
-              <td>8</td>
-              <td>9</td>
-              <td>10</td>
-              <td>11</td>
-              <td class="cal-has-post">12</td>
-              <td>13</td>
-            </tr>
-            <tr>
-              <td>14</td>
-              <td>15</td>
-              <td>16</td>
-              <td>17</td>
-              <td>18</td>
-              <td class="cal-has-post">19</td>
-              <td>20</td>
-            </tr>
-            <tr>
-              <td>21</td>
-              <td>22</td>
-              <td class="cal-has-post">23</td>
-              <td>24</td>
-              <td class="cal-has-post">25</td>
-              <td class="cal-today">26</td>
-              <td>27</td>
-            </tr>
-            <tr>
-              <td>28</td>
-              <td>29</td>
-              <td>30</td>
-              <td>31</td>
-              <td class="cal-outside"> 1 </td>
-              <td class="cal-outside cal-has-post"> 2 </td>
-              <td class="cal-outside"> 3 </td>
-            </tr>
-          </tbody>
+          <tbody id="cal-body"> </tbody>
         </table>
       </nav>
     </div>
   </div>
 </section>
 
-<style>
+<script>
+  // --- Client Side Logic ---
+  interface PostItem {
+    date: string;
+    link: string;
+  }
+
+  interface PostByMonth {
+    [monthKey: string]: PostItem[];
+  }
+
+  class BlogCalendar {
+    private container: HTMLElement;
+    private postByMonth: PostByMonth;
+    private currentRealMonthKey: string;
+    private navPoints: string[];
+    private currentDisplayIndex: number;
+    private labelEl: HTMLElement;
+    private bodyEl: HTMLElement;
+    private btnPrev: HTMLButtonElement;
+    private btnNext: HTMLButtonElement;
+    private currentPostDate: string | null = null; // 当前浏览的文章发布日期 "2025-12-15"
+
+    constructor(element: HTMLElement) {
+      this.container = element;
+      // 1. 获取服务端传来的数据（按月分组的结构）
+      this.postByMonth = JSON.parse(this.container.dataset.posts || "{}");
+      console.log("Calendar Data:", this.postByMonth);
+
+      // 2. 构建"可导航月份"列表 (Navigation Track)
+      // 规则：所有有文章的月份 + 当前真实月份
+      const today = new Date();
+      this.currentRealMonthKey = this.formatMonthKey(today);
+
+      const distinctMonths = new Set<string>(Object.keys(this.postByMonth));
+      distinctMonths.add(this.currentRealMonthKey); // 确保当前月也在列表中
+
+      // 转为数组并排序，这就是我们的"进度条"
+      this.navPoints = Array.from(distinctMonths).sort();
+
+      // 3. 从 URL 的 slug 识别并获取对应的月份和具体日期
+      let initialMonth: string | null = null;
+      const currentUrl = window.location.pathname;
+      const slug = currentUrl.split("/").filter(Boolean)[0]; // 取第一个路径段作为 slug
+
+      if (slug) {
+        // 在所有月份的文章中查找该 slug
+        for (const monthPosts of Object.values(this.postByMonth)) {
+          const found = monthPosts.find((item) => item.link === `/${slug}`);
+          if (found) {
+            // 从日期字符串反向推导月份 "2025-12-15" => "2025-12"
+            initialMonth = found.date.substring(0, 7);
+            // 记录当前文章的具体发布日期，用于高亮
+            this.currentPostDate = found.date;
+            break;
+          }
+        }
+      }
+
+      // 4. 初始化状态：优先使用 initialMonth（从 URL 的 slug 确定），否则显示当前真实月份
+      let targetMonth = initialMonth || this.currentRealMonthKey;
+      this.currentDisplayIndex = this.navPoints.indexOf(targetMonth);
+      // 如果 initialMonth 不在 navPoints 中（不太可能，但以防万一），回退到当前月
+      if (this.currentDisplayIndex === -1) {
+        this.currentDisplayIndex = this.navPoints.indexOf(
+          this.currentRealMonthKey
+        );
+      }
+
+      // 5. 绑定 DOM 元素
+      this.labelEl = this.container.querySelector("#cal-label") as HTMLElement;
+      this.bodyEl = this.container.querySelector("#cal-body") as HTMLElement;
+      this.btnPrev = this.container.querySelector(
+        "#cal-prev"
+      ) as HTMLButtonElement;
+      this.btnNext = this.container.querySelector(
+        "#cal-next"
+      ) as HTMLButtonElement;
+
+      // 绑定事件
+      this.btnPrev.addEventListener("click", () => this.move(-1));
+      this.btnNext.addEventListener("click", () => this.move(1));
+
+      // 初次渲染
+      this.render();
+    }
+
+    // 辅助：Date对象 -> "YYYY-MM"
+    private formatMonthKey(date: Date): string {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    // 辅助：Date对象 -> "YYYY-MM-DD"
+    private formatDateKey(date: Date): string {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    // 切换月份
+    private move(step: number): void {
+      const newIndex = this.currentDisplayIndex + step;
+      // 边界检查
+      if (newIndex >= 0 && newIndex < this.navPoints.length) {
+        this.currentDisplayIndex = newIndex;
+        this.render();
+      }
+    }
+
+    private render(): void {
+      // 1. 获取当前需要渲染的月份字符串 "2025-12"
+      const monthKey = this.navPoints[this.currentDisplayIndex];
+      const [year, month] = monthKey.split("-").map(Number);
+
+      // 更新头部标签 (DEC 2025)
+      const monthNames = [
+        "JAN",
+        "FEB",
+        "MAR",
+        "APR",
+        "MAY",
+        "JUN",
+        "JUL",
+        "AUG",
+        "SEP",
+        "OCT",
+        "NOV",
+        "DEC"
+      ];
+      this.labelEl.textContent = `${monthNames[month - 1]} ${year}`;
+
+      // 2. 更新按钮状态
+      this.btnPrev.disabled = this.currentDisplayIndex <= 0;
+      this.btnPrev.style.opacity = this.btnPrev.disabled ? "0.5" : "1";
+      this.btnPrev.style.cursor = this.btnPrev.disabled
+        ? "not-allowed"
+        : "pointer";
+
+      this.btnNext.disabled =
+        this.currentDisplayIndex >= this.navPoints.length - 1;
+      this.btnNext.style.opacity = this.btnNext.disabled ? "0.5" : "1";
+      this.btnNext.style.cursor = this.btnNext.disabled
+        ? "not-allowed"
+        : "pointer";
+
+      // 3. 性能优化：只取该月的文章数据
+      const monthPosts = this.postByMonth[monthKey] || [];
+      // 构建该月日期 -> 链接的快速查询 Map
+      const dateToLink = new Map<string, string>();
+      monthPosts.forEach((post) => {
+        dateToLink.set(post.date, post.link);
+      });
+
+      // 4. 生成日历网格
+      const firstDay = new Date(year, month - 1, 1);
+      const lastDay = new Date(year, month, 0);
+
+      const totalDays = lastDay.getDate();
+      const startWeekDay = firstDay.getDay();
+
+      // 清空表格
+      this.bodyEl.innerHTML = "";
+      let html = "";
+
+      // 填充行
+      let dayCount = 1;
+      while (dayCount <= totalDays) {
+        html += "<tr>";
+        for (let i = 0; i < 7; i++) {
+          if ((dayCount === 1 && i < startWeekDay) || dayCount > totalDays) {
+            // 渲染空白/Outside 单元格
+            let showNum: string | number = "";
+
+            if (dayCount === 1) {
+              // 上个月的日期计算
+              const prevLast = new Date(year, month - 1, 0).getDate();
+              showNum = prevLast - (startWeekDay - i - 1);
+            } else {
+              // 下个月的日期计算
+              showNum =
+                dayCount - totalDays + (i - (dayCount > totalDays ? 0 : 0));
+            }
+            html += `<td class="cal-outside">${showNum || ""}</td>`;
+          } else {
+            // 本月日期
+            const currentKey = `${year}-${String(month).padStart(2, "0")}-${String(dayCount).padStart(2, "0")}`;
+            const link = dateToLink.get(currentKey);
+            const isToday = currentKey === this.formatDateKey(new Date());
+            const isCurrentPost = currentKey === this.currentPostDate; // 检查是否是当前浏览的文章日期
+
+            let cellClass = "";
+            if (isToday) cellClass += " cal-today";
+            if (isCurrentPost) cellClass += " cal-current-post"; // 高亮当前文章的发布日期
+            if (link && !isCurrentPost) cellClass += " cal-has-post"; // 如果是当前文章，不再应用 cal-has-post
+
+            let cellContent: string | number = dayCount;
+            if (link) {
+              cellContent = `<a href="${link}" style="display:block;width:100%;height:100%;color:inherit;text-decoration:none;">${dayCount}</a>`;
+            }
+
+            html += `<td class="${cellClass}">${cellContent}</td>`;
+            dayCount++;
+          }
+        }
+        html += "</tr>";
+        if (dayCount > totalDays) break;
+      }
+      this.bodyEl.innerHTML = html;
+    }
+  }
+
+  // 初始化组件
+  // 使用 Astro page:load 事件兼容 View Transitions (如果你开启了的话)
+  // 如果没开启 View Transitions，直接 run 也可以
+  document.addEventListener("astro:page-load", () => {
+    const calendars = document.querySelectorAll(".calendar-widget");
+    calendars.forEach((el) => new BlogCalendar(el as HTMLElement));
+  });
+
+  // 兜底：如果没有 View Transitions，DOMContentLoaded 也要执行
+  document.addEventListener("DOMContentLoaded", () => {
+    const calendars = document.querySelectorAll(".calendar-widget");
+    calendars.forEach((el) => new BlogCalendar(el as HTMLElement));
+  });
+</script>
+
+<style is:global>
   /* Calendar */
   .calendar-wrapper {
     background: var(--cell-bg-alt);
@@ -121,6 +328,9 @@
     border-right-color: var(--cell-bg);
     border-bottom-color: var(--cell-bg);
     background: var(--text-muted);
+  }
+  .cal-year {
+    font-weight: bold;
   }
   .cal-table {
     width: 100%;
@@ -166,5 +376,30 @@
     background-color: var(--link-hover);
     border-color: var(--cell-bg-alt);
     color: var(--cell-bg-alt);
+  }
+  /* 当前浏览的文章发布日期的高亮样式 */
+  .cal-table td.cal-current-post {
+    background-color: #ff6b6b;
+    color: white;
+    font-weight: bold;
+    border: 2px solid #c92a2a;
+    box-shadow:
+      0 0 8px rgba(255, 107, 107, 0.5),
+      inset 0 0 4px rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+  }
+  .cal-table td.cal-current-post:hover {
+    background-color: #ff5252;
+    border-color: #a61e1e;
+    box-shadow:
+      0 0 12px rgba(255, 107, 107, 0.7),
+      inset 0 0 4px rgba(255, 255, 255, 0.4);
+  }
+  .cal-table td.cal-current-post a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
   }
 </style>

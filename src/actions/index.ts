@@ -3,18 +3,45 @@ import { ActionError, defineAction } from "astro:actions";
 import { z } from "astro:schema";
 import { comments } from "../db/schema";
 import { requireAdmin } from "../lib/guard.ts";
+import { htmlToSafeText } from "../lib/safe.ts";
 import { getClientIp } from "../utils/ip.ts";
 
 export const server = {
   comment: {
     submit: defineAction({
       input: z.object({
-        s5s5_08: z.string().min(1, "Post slug is required"),
-        s5s5_b9: z.string().min(1, "Content cannot be empty"),
-        s5s5_g5: z.string().min(1, "Name is required"),
-        s5s5_a6: z.string().email("Invalid email address"),
-        s5s5_0b: z.string().url().optional(),
-        s5s5_yb: z.number().optional(),
+        s5s5_08: z
+          .string()
+          .min(1, "Post slug is required")
+          .max(50, "Post slug is too long")
+          .regex(/^[a-z0-9-_]+$/i, "Post slug format is invalid"),
+        s5s5_b9: z
+          .string()
+          .min(1, "评论 cannot be empty")
+          .max(2_000, "评论 cannot is too long"),
+        s5s5_g5: z
+          .string()
+          .min(1, "署名 is required")
+          .max(50, "署名 is too long"),
+        s5s5_a6: z
+          .string()
+          .email("Invalid 邮件 address")
+          .max(255, "邮件 is too long"),
+        s5s5_0b: z
+          .string()
+          .url()
+          .max(500, "网址 is too long")
+          .refine(
+            (url) => url.startsWith("http://") || url.startsWith("https://"),
+            { message: "网址 must start with http:// or https://" }
+          )
+          .optional(),
+        s5s5_yb: z
+          .number()
+          .int()
+          .positive()
+          .max(1_000_000, "Parent ID is too large")
+          .optional(),
         name: z.string().optional() // 蜜罐
       }),
       handler: async (input, context) => {
@@ -33,24 +60,32 @@ export const server = {
           });
         }
 
+        // --- 安全处理区域 ---
+
+        // 清洗评论内容 (即使是 Markdown，也把 HTML 标签扒掉)
+        const cleanContent = htmlToSafeText(input.s5s5_b9);
+        // 清洗署名 (防止用户名字叫 "<b>Admin</b>")
+        const cleanAuthorName = htmlToSafeText(input.s5s5_g5);
+
+        // ------------------
+
         const createdAt = new Date().toISOString();
         const authorIp = getClientIp(context);
         const userAgent = request.headers.get("user-agent") || null;
 
         try {
-          // Drizzle 最佳实践：使用 .returning() 直接获取插入后的数据，
-          // 这样就不需要写那一堆复杂的 fallback 逻辑去查 ID 了。
+          // Drizzle 最佳实践：使用 .returning() 直接获取插入后的数据
           const [insertedComment] = await db
             .insert(comments)
             .values({
               postSlug: input.s5s5_08,
               parentId: input.s5s5_yb ?? null,
-              authorName: input.s5s5_g5,
+              authorName: cleanAuthorName,
               authorEmail: input.s5s5_a6,
               authorWebsite: input.s5s5_0b ?? null,
               authorIp,
               userAgent,
-              content: input.s5s5_b9,
+              content: cleanContent,
               status: "public",
               createdAt,
               legacyId: null,

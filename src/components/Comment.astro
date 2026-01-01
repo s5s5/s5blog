@@ -1,0 +1,63 @@
+---
+import { AUTHOR_EMAIL } from "../consts.ts";
+import { markdownToSafeHtml, safeUrl } from "../lib/safe.ts";
+import Avatar from "./Avatar.astro";
+
+type Props = {
+  comment: RawComment;
+};
+
+const { db } = Astro.locals;
+
+type RawCommentsArray = Awaited<ReturnType<typeof db.query.comments.findMany>>;
+type RawComment = RawCommentsArray extends Array<infer T> ? T : never;
+
+const { comment } = Astro.props;
+---
+
+<>
+  <footer class="comment-head">
+    <Avatar
+      class="comment-avatar"
+      email={comment.authorEmail}
+      alt={comment.authorName}
+    />
+    <span class="comment-user">
+      {comment.authorName}
+      {
+        comment.authorEmail === AUTHOR_EMAIL ? (
+          <span class="comment-author-badge">AUTHOR</span>
+        ) : (
+          ""
+        )
+      }
+      {
+        safeUrl(comment.authorWebsite) ? (
+          <a
+            class="comment-website-link"
+            href={safeUrl(comment.authorWebsite)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ☄
+          </a>
+        ) : (
+          ""
+        )
+      }
+    </span>
+    <span class="comment-date">{comment.createdAt}</span>
+  </footer>
+  <div
+    class="comment-body markdown-content"
+    set:html={markdownToSafeHtml(comment.content)}
+  />
+  <button
+    type="button"
+    class="comment-reply-btn"
+    data-comment-id={comment.id}
+    data-comment-author={comment.authorName}
+  >
+    回复
+  </button>
+</>

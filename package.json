@@ -21,7 +21,9 @@
     "better-auth": "^1.4.9",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.45.1",
+    "isomorphic-dompurify": "^2.35.0",
     "lunisolar": "^2.6.0",
+    "marked": "^17.0.1",
     "remark-breaks": "^4.0.0",
     "typescript": "^5.9.3"
   },

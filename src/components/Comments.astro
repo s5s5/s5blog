@@ -1,6 +1,5 @@
 ---
-import { AUTHOR_EMAIL } from "../consts.ts";
-import Avatar from "./Avatar.astro";
+import Comment from "./Comment.astro";
 import CommentCount from "./CommentCount.astro";
 import CommentReplies from "./CommentReplies.astro";
 
@@ -72,43 +71,7 @@ topLevelComments.forEach((comment) => {
           {topLevelComments.map((comment) => (
             <li class="comment-item">
               <article>
-                <footer class="comment-head">
-                  <Avatar
-                    class="comment-avatar"
-                    email={comment.authorEmail}
-                    alt={comment.authorName}
-                  />
-                  <span class="comment-user">
-                    {comment.authorName}
-                    {comment.authorEmail === AUTHOR_EMAIL ? (
-                      <span class="comment-author-badge">AUTHOR</span>
-                    ) : (
-                      ""
-                    )}
-                    {comment.authorWebsite ? (
-                      <a
-                        class="comment-website-link"
-                        href={comment.authorWebsite}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        ☄
-                      </a>
-                    ) : (
-                      ""
-                    )}
-                  </span>
-                  <span class="comment-date">{comment.createdAt}</span>
-                </footer>
-                <p class="comment-body">{comment.content}</p>
-                <button
-                  type="button"
-                  class="comment-reply-btn"
-                  data-comment-id={comment.id}
-                  data-comment-author={comment.authorName}
-                >
-                  回复
-                </button>
+                <Comment comment={comment} />
                 {comment.replies && comment.replies.length > 0 && (
                   <ol class="comment-replies">
                     <CommentReplies replies={comment.replies} />

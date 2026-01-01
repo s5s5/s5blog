@@ -1,6 +1,5 @@
 ---
-import { AUTHOR_EMAIL } from "../consts.ts";
-import Avatar from "./Avatar.astro";
+import Comment from "./Comment.astro";
 
 type Props = {
   replies: CommentNode[];
@@ -24,31 +23,7 @@ type CommentNode = RawComment & {
       {replies.map((reply: CommentNode) => (
         <li class="comment-item">
           <article>
-            <footer class="comment-head">
-              <Avatar
-                class="comment-avatar"
-                email={reply.authorEmail}
-                alt={reply.authorName}
-              />
-              <span class="comment-user">
-                {reply.authorName}
-                {reply.authorEmail === AUTHOR_EMAIL ? (
-                  <span class="comment-author-badge">AUTHOR</span>
-                ) : (
-                  ""
-                )}
-              </span>
-              <span class="comment-date">{reply.createdAt}</span>
-            </footer>
-            <p class="comment-body">{reply.content}</p>
-            <button
-              type="button"
-              class="comment-reply-btn"
-              data-comment-id={reply.id}
-              data-comment-author={reply.authorName}
-            >
-              回复
-            </button>
+            <Comment comment={reply} />
             {reply.replies && reply.replies.length > 0 && (
               <ol class="comment-replies">
                 <Astro.self replies={reply.replies} />

@@ -10,6 +10,9 @@ const { postSlug } = Astro.props;
   <form class="form" id="form">
     <input type="hidden" name="s5s5_08" value={postSlug} />
     <input type="hidden" id="s5s5_yb-input" name="s5s5_yb" value="" />
+    <label class="form-name-label">
+      <input type="text" id="name" name="name" placeholder="Name" />
+    </label>
 
     <div class="form-label">
       <h3 id="comment-reply-title">发表评论：</h3>
@@ -29,6 +32,8 @@ const { postSlug } = Astro.props;
         name="s5s5_b9"
         rows="5"
         required
+        maxlength="2000"
+        minlength="1"
         class="form-input"
         placeholder="⸜(｡˃ ᵕ ˂ )⸝♡ ..."></textarea>
     </label>
@@ -40,6 +45,7 @@ const { postSlug } = Astro.props;
           id="s5s5_g5"
           name="s5s5_g5"
           required
+          maxlength="50"
           class="form-input"
           placeholder="☺ 署名"
         />
@@ -50,6 +56,7 @@ const { postSlug } = Astro.props;
           id="s5s5_a6"
           name="s5s5_a6"
           required
+          maxlength="255"
           class="form-input"
           placeholder="✉ 邮件 (不会公开)"
         />
@@ -61,6 +68,7 @@ const { postSlug } = Astro.props;
           type="url"
           id="s5s5_0b"
           name="s5s5_0b"
+          maxlength="500"
           class="form-input"
           placeholder="☄ 网站 (选填)"
         />
@@ -331,5 +339,18 @@ const { postSlug } = Astro.props;
     color: var(--text-main);
     transform: translate(1px, 1px);
     box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+  }
+  .form-name-label {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .error {
+    color: var(--canvas-accent);
+    font-size: 10px;
+    font-family: var(--font-pixel10);
   }
 </style>

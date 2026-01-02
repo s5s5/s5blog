@@ -34,10 +34,10 @@ Object.keys(postByMonth).forEach((month) => {
 const initialData = JSON.stringify(postByMonth);
 ---
 
-<section class="calendar-widget" data-posts={initialData}>
+<section class="calendar-widget">
   <h3 class="module-header">:: CALENDAR</h3>
   <div class="cell-pad" style="padding: 10px 8px">
-    <div class="calendar-wrapper">
+    <div class="calendar-wrapper" data-posts={initialData}>
       <div class="cal-nav">
         <button type="button" class="cal-btn" id="cal-prev">&lt;</button>
         <span class="cal-year" id="cal-label">LOADING...</span>
@@ -62,14 +62,16 @@ const initialData = JSON.stringify(postByMonth);
 
 <script>
   // --- Client Side Logic ---
-  interface PostItem {
+  import { format } from "date-fns";
+
+  type PostItem = {
     date: string;
     link: string;
-  }
+  };
 
-  interface PostByMonth {
+  type PostByMonth = {
     [monthKey: string]: PostItem[];
-  }
+  };
 
   class BlogCalendar {
     private container: HTMLElement;
@@ -87,7 +89,6 @@ const initialData = JSON.stringify(postByMonth);
       this.container = element;
       // 1. 获取服务端传来的数据（按月分组的结构）
       this.postByMonth = JSON.parse(this.container.dataset.posts || "{}");
-      console.log("Calendar Data:", this.postByMonth);
 
       // 2. 构建"可导航月份"列表 (Navigation Track)
       // 规则：所有有文章的月份 + 当前真实月份
@@ -149,12 +150,12 @@ const initialData = JSON.stringify(postByMonth);
 
     // 辅助：Date对象 -> "YYYY-MM"
     private formatMonthKey(date: Date): string {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      return format(date, "yyyy-MM");
     }
 
     // 辅助：Date对象 -> "YYYY-MM-DD"
     private formatDateKey(date: Date): string {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      return format(date, "yyyy-MM-dd");
     }
 
     // 切换月份
@@ -255,7 +256,7 @@ const initialData = JSON.stringify(postByMonth);
 
             let cellContent: string | number = dayCount;
             if (link) {
-              cellContent = `<a href="${link}" style="display:block;width:100%;height:100%;color:inherit;text-decoration:none;">${dayCount}</a>`;
+              cellContent = `<a href="${link}" class="cal-link">${dayCount}</a>`;
             }
 
             html += `<td class="${cellClass}">${cellContent}</td>`;
@@ -273,13 +274,13 @@ const initialData = JSON.stringify(postByMonth);
   // 使用 Astro page:load 事件兼容 View Transitions (如果你开启了的话)
   // 如果没开启 View Transitions，直接 run 也可以
   document.addEventListener("astro:page-load", () => {
-    const calendars = document.querySelectorAll(".calendar-widget");
+    const calendars = document.querySelectorAll(".calendar-wrapper");
     calendars.forEach((el) => new BlogCalendar(el as HTMLElement));
   });
 
   // 兜底：如果没有 View Transitions，DOMContentLoaded 也要执行
   document.addEventListener("DOMContentLoaded", () => {
-    const calendars = document.querySelectorAll(".calendar-widget");
+    const calendars = document.querySelectorAll(".calendar-wrapper");
     calendars.forEach((el) => new BlogCalendar(el as HTMLElement));
   });
 </script>
@@ -293,6 +294,7 @@ const initialData = JSON.stringify(postByMonth);
     border-bottom-color: var(--container-bg);
     padding: 6px;
     font-family: var(--font-mono);
+    min-height: 170px;
   }
   .cal-nav {
     display: flex;
@@ -350,7 +352,9 @@ const initialData = JSON.stringify(postByMonth);
     border-right-color: var(--container-bg);
     border-bottom-color: var(--container-bg);
     color: var(--text-main);
-    padding: 2px;
+    height: 20px;
+    line-height: 20px;
+    padding: 0 2px;
   }
   .cal-table td.cal-today {
     background: var(--highlight);
@@ -368,8 +372,7 @@ const initialData = JSON.stringify(postByMonth);
     background-color: var(--link-color);
     color: var(--cell-bg);
     font-weight: bold;
-    border: 1px solid var(--text-main);
-    opacity: 0.8;
+    font-size: 12px;
     cursor: pointer;
   }
   .cal-table td.cal-has-post:hover {
@@ -377,29 +380,28 @@ const initialData = JSON.stringify(postByMonth);
     border-color: var(--cell-bg-alt);
     color: var(--cell-bg-alt);
   }
+  .cal-table td .cal-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+  }
   /* 当前浏览的文章发布日期的高亮样式 */
   .cal-table td.cal-current-post {
-    background-color: #ff6b6b;
-    color: white;
+    background-color: var(--canvas-accent);
+    color: var(--cell-bg);
     font-weight: bold;
-    border: 2px solid #c92a2a;
-    box-shadow:
-      0 0 8px rgba(255, 107, 107, 0.5),
-      inset 0 0 4px rgba(255, 255, 255, 0.3);
+    font-size: 12px;
     cursor: pointer;
   }
   .cal-table td.cal-current-post:hover {
-    background-color: #ff5252;
-    border-color: #a61e1e;
-    box-shadow:
-      0 0 12px rgba(255, 107, 107, 0.7),
-      inset 0 0 4px rgba(255, 255, 255, 0.4);
+    border-color: var(--canvas-accent);
   }
   .cal-table td.cal-current-post a {
     display: block;
     width: 100%;
     height: 100%;
     color: inherit;
-    text-decoration: none;
   }
 </style>

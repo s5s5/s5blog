@@ -13,61 +13,69 @@
 
 <script>
   // --- THEME LOGIC ---
-  const themeBtn = document.getElementById(
-    "theme-toggle"
-  ) as HTMLButtonElement | null;
-  const htmlEl = document.documentElement;
-  let currentThemeMode = localStorage.getItem("themeMode") || "auto";
+  function initializeTheme() {
+    const themeBtn = document.getElementById(
+      "theme-toggle"
+    ) as HTMLButtonElement | null;
+    const htmlEl = document.documentElement;
+    let currentThemeMode = localStorage.getItem("themeMode") || "auto";
 
-  function getSystemTheme(): "light" | "dark" {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  }
-
-  const systemTheme = getSystemTheme();
-  const themeModes: string[] =
-    systemTheme === "dark"
-      ? ["auto", "light", "dark"]
-      : ["auto", "dark", "light"];
-
-  function getEffectiveTheme(): "light" | "dark" {
-    if (currentThemeMode === "auto") {
-      return getSystemTheme();
+    function getSystemTheme(): "light" | "dark" {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
     }
-    return currentThemeMode as "light" | "dark";
-  }
 
-  function applyTheme() {
-    const effectiveTheme = getEffectiveTheme();
-    if (effectiveTheme === "dark") {
-      htmlEl.setAttribute("data-theme", "dark");
-    } else {
-      htmlEl.removeAttribute("data-theme");
+    const systemTheme = getSystemTheme();
+    const themeModes: string[] =
+      systemTheme === "dark"
+        ? ["auto", "light", "dark"]
+        : ["auto", "dark", "light"];
+
+    function getEffectiveTheme(): "light" | "dark" {
+      if (currentThemeMode === "auto") {
+        return getSystemTheme();
+      }
+      return currentThemeMode as "light" | "dark";
     }
+
+    function applyTheme() {
+      const effectiveTheme = getEffectiveTheme();
+      if (effectiveTheme === "dark") {
+        htmlEl.setAttribute("data-theme", "dark");
+      } else {
+        htmlEl.removeAttribute("data-theme");
+      }
+      if (themeBtn) {
+        themeBtn.innerText = "THEME: " + currentThemeMode.toUpperCase();
+      }
+      // setTimeout(redrawAllCanvases, 50);
+    }
+
     if (themeBtn) {
-      themeBtn.innerText = "THEME: " + currentThemeMode.toUpperCase();
+      themeBtn.addEventListener("click", () => {
+        const currentIndex = themeModes.indexOf(currentThemeMode);
+        const nextIndex = (currentIndex + 1) % themeModes.length;
+        currentThemeMode = themeModes[nextIndex];
+        localStorage.setItem("themeMode", currentThemeMode);
+        applyTheme();
+      });
     }
-    // setTimeout(redrawAllCanvases, 50);
+
+    if (currentThemeMode === "auto") {
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", applyTheme);
+    }
+
+    applyTheme();
   }
 
-  if (themeBtn) {
-    themeBtn.addEventListener("click", () => {
-      const currentIndex = themeModes.indexOf(currentThemeMode);
-      const nextIndex = (currentIndex + 1) % themeModes.length;
-      currentThemeMode = themeModes[nextIndex];
-      localStorage.setItem("themeMode", currentThemeMode);
-      applyTheme();
-    });
-  }
+  // Initialize on first load
+  initializeTheme();
 
-  if (currentThemeMode === "auto") {
-    window
-      .matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", applyTheme);
-  }
-
-  applyTheme();
+  // Re-initialize on view transitions
+  document.addEventListener("astro:after-swap", initializeTheme);
 </script>
 
 <style>

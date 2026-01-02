@@ -240,6 +240,9 @@ aside section:first-child .module-header {
 .markdown-content a {
   color: var(--highlight);
 }
+.markdown-content a:hover {
+  text-decoration: underline;
+}
 .markdown-content h1 {
   font-size: 20px;
   font-weight: bold;

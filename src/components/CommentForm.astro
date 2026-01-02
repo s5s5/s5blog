@@ -357,7 +357,7 @@ const { postSlug } = Astro.props;
   .comment-cancel-reply {
     background: none;
     border: none;
-    color: var(--highlight);
+    color: var(--link-color);
     font-family: var(--font-pixel10);
     font-size: 10px;
     letter-spacing: 1px;
@@ -365,6 +365,7 @@ const { postSlug } = Astro.props;
     margin-left: 10px;
   }
   .comment-cancel-reply:hover {
+    color: var(--link-hover);
     text-decoration: underline;
   }
   .form-row {

@@ -16,7 +16,7 @@ const { comment } = Astro.props;
 ---
 
 <>
-  <footer class="comment-head">
+  <footer class="comment-head" id={`comment-${comment.id}`}>
     <Avatar
       class="comment-avatar"
       email={comment.authorEmail}

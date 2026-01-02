@@ -28,6 +28,7 @@ const weatherLabel = `${weather} ${key.toUpperCase()} ${icon}`;
     weatherKey: string | null = null;
     drawType: string | null = null;
     sketch!: WeatherSketch;
+    container!: HTMLElement;
 
     connectedCallback() {
       this.weatherKey = this.getAttribute("data-weather");
@@ -37,14 +38,27 @@ const weatherLabel = `${weather} ${key.toUpperCase()} ${icon}`;
 
     initCanvas() {
       const canvas = this.querySelector("canvas") as HTMLCanvasElement;
-      const container = canvas.parentElement as HTMLElement;
+      this.container = canvas.parentElement as HTMLElement;
 
       this.sketch = new WeatherSketch(canvas);
 
-      const observer = new ResizeObserver(() => this.paint(container));
-      observer.observe(container);
+      const observer = new ResizeObserver(() => this.paint(this.container));
+      observer.observe(this.container);
 
-      requestAnimationFrame(() => this.paint(container));
+      requestAnimationFrame(() => this.paint(this.container));
+
+      // Listen for theme changes
+      const htmlEl = document.documentElement;
+      const observer2 = new MutationObserver(() => this.paint(this.container));
+      observer2.observe(htmlEl, {
+        attributes: true,
+        attributeFilter: ["data-theme"]
+      });
+
+      // Also listen for view transitions
+      document.addEventListener("astro:after-swap", () => {
+        this.initCanvas();
+      });
     }
 
     paint(container: HTMLElement) {

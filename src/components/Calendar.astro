@@ -277,12 +277,6 @@ const initialData = JSON.stringify(postByMonth);
     const calendars = document.querySelectorAll(".calendar-wrapper");
     calendars.forEach((el) => new BlogCalendar(el as HTMLElement));
   });
-
-  // 兜底：如果没有 View Transitions，DOMContentLoaded 也要执行
-  document.addEventListener("DOMContentLoaded", () => {
-    const calendars = document.querySelectorAll(".calendar-wrapper");
-    calendars.forEach((el) => new BlogCalendar(el as HTMLElement));
-  });
 </script>
 
 <style is:global>

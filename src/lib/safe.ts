@@ -1,5 +1,5 @@
-import DOMPurify from "isomorphic-dompurify";
 import { marked } from "marked";
+import sanitizeHtml from "sanitize-html";
 
 // 配置选项
 marked.use({
@@ -35,18 +35,18 @@ export async function markdownToSafeHtml(rawMarkdown: string) {
 
   // 严格限制允许的 HTML 标签
   // 只允许基础的格式化标签，防止用户破坏页面布局或执行脚本
-  return DOMPurify.sanitize(rawHtml, {
-    ALLOWED_TAGS: ["p", "br", "strong", "em"],
-    ALLOWED_ATTR: [],
-    KEEP_CONTENT: true
+  return sanitizeHtml(rawHtml, {
+    allowedTags: ["p", "br", "strong", "em"],
+    allowedAttributes: {}, // 不允许任何属性
+    disallowedTagsMode: "discard" // 移除不允许的标签但保留内容
   }).trim();
 }
 export function htmlToSafeText(text: string): string {
-  return DOMPurify.sanitize(text, {
-    ALLOWED_TAGS: [], // 不允许任何标签
-    ALLOWED_ATTR: [], // 不允许任何属性
-    KEEP_CONTENT: true // 保留标签内的文字
-  }).trim(); // 顺便去掉首尾空格
+  // 移除所有标签，只保留纯文本
+  return sanitizeHtml(text, {
+    allowedTags: [],
+    allowedAttributes: {}
+  }).trim();
 }
 
 // 简单的协议白名单检查

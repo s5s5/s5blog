@@ -2,8 +2,9 @@
 import { getCollection } from "astro:content";
 import Pagination from "../components/Pagination.astro";
 import PostCard from "../components/PostCard.astro";
+import { PAGE_PATH, POSTS_PER_PAGE } from "../consts.ts";
 import Layout from "../layouts/Layout.astro";
-import { calculateTotalPages, POSTS_PER_PAGE } from "../utils/pagination";
+import { calculateTotalPages } from "../utils/pagination";
 
 const allPosts = (await getCollection("blog")).sort(
   (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
@@ -19,5 +20,5 @@ const page = 1;
       return <PostCard post={post} />;
     })
   }
-  <Pagination page={page} totalPages={totalPages} />
+  <Pagination basePath={PAGE_PATH} page={page} totalPages={totalPages} />
 </Layout>

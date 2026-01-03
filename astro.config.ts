@@ -21,6 +21,7 @@ export default defineConfig({
   },
   integrations: [mdx(), sitemap()],
   redirects: {
+    "/page/1": "/",
     "/category/first-category": "/category/first-category/1",
     "/category/other": "/category/other/1"
   },

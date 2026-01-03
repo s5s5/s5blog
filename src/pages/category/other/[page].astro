@@ -3,9 +3,8 @@ import type { GetStaticPaths, Page } from "astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 import Pagination from "../../../components/Pagination.astro";
 import PostCard from "../../../components/PostCard.astro";
-import { CATEGORIES } from "../../../consts.ts";
+import { CATEGORIES, POSTS_PER_PAGE } from "../../../consts.ts";
 import Layout from "../../../layouts/Layout.astro";
-import { POSTS_PER_PAGE } from "../../../utils/pagination";
 
 export const getStaticPaths = (async ({ paginate }) => {
   const posts = (await getCollection("blog")).filter(
@@ -22,6 +21,7 @@ type Props = {
 };
 
 const { page } = Astro.props;
+const basePath = CATEGORIES[1].path;
 ---
 
 <Layout
@@ -34,6 +34,7 @@ const { page } = Astro.props;
   }
 
   <Pagination
+    basePath={basePath}
     page={page.currentPage}
     totalPages={page.lastPage}
     hasPrevPage={!!page.url.prev}

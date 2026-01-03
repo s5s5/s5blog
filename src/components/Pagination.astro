@@ -1,12 +1,8 @@
 ---
-import {
-  generatePaginationPages,
-  getNextPageUrl,
-  getPageUrl,
-  getPrevPageUrl
-} from "../utils/pagination";
+import { generatePaginationPages, getPageUrl } from "../utils/pagination";
 
 type Props = {
+  basePath: string;
   page: number;
   totalPages: number;
   hasPrevPage?: boolean;
@@ -16,12 +12,13 @@ type Props = {
 };
 
 const {
+  basePath,
   page,
   totalPages,
   hasPrevPage = page > 1,
   hasNextPage = page < totalPages,
-  prevPageUrl = getPrevPageUrl(page),
-  nextPageUrl = getNextPageUrl(page)
+  prevPageUrl = getPageUrl(page - 1, basePath),
+  nextPageUrl = getPageUrl(page + 1, basePath)
 } = Astro.props;
 
 const paginationPages = generatePaginationPages(page, totalPages);
@@ -40,7 +37,7 @@ const paginationPages = generatePaginationPages(page, totalPages);
           return <span class="page-dots">...</span>;
         }
         const pageNumber = pageNum as number;
-        const pageUrl = getPageUrl(pageNumber);
+        const pageUrl = getPageUrl(pageNumber, basePath);
         return (
           <a
             href={pageUrl}

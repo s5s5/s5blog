@@ -1,8 +1,7 @@
 /**
  * 分页工具函数和常量
  */
-
-export const POSTS_PER_PAGE = 10;
+import { POSTS_PER_PAGE } from "../consts.ts";
 
 /**
  * 生成分页器页码数组
@@ -53,28 +52,11 @@ export function calculateTotalPages(totalPosts: number): number {
 }
 
 /**
- * 获取上一页URL
- * @param page 当前页码
- * @returns 上一页的URL
- */
-export function getPrevPageUrl(page: number): string {
-  return page - 1 === 1 ? "/" : `/page/${page - 1}`;
-}
-
-/**
- * 获取下一页URL
- * @param page 当前页码
- * @returns 下一页的URL
- */
-export function getNextPageUrl(page: number): string {
-  return `/page/${page + 1}`;
-}
-
-/**
  * 获取页面URL
  * @param page 页码
+ * @param basePath 基础路径（可选，用于分类页面等）
  * @returns 页面URL
  */
-export function getPageUrl(page: number): string {
-  return page === 1 ? "/" : `/page/${page}`;
+export function getPageUrl(page: number, basePath: string): string {
+  return `${basePath}/${page}`;
 }

@@ -6,6 +6,8 @@ export const CATEGORIES = [
   { name: "First Category", path: "/category/first-category" },
   { name: "Other", path: "/category/other" }
 ];
+export const PAGE_PATH = "/page";
+export const POSTS_PER_PAGE = 10;
 export const BEI_AN = "蜀ICP备16014041号-1";
 export const TIMEZONE = "Asia/Shanghai";
 export const CDN_URL = "https://pub-bb954768211c43c8b9f7029411c7b953.r2.dev";

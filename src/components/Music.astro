@@ -1,14 +1,20 @@
 ---
 // Music files from public/music directory
+
+import { CDN_URL } from "../consts.ts";
+
 const musicFiles = [
   {
     name: "Auld Lang Syne - Ultimate Year End - Nhạc Giáng Sinh 2024 - AudioBay_BGM",
-    file: "/music/auld-lang-syne-ultimate-year-end-nhac-giang-sinh-2024-257349.mp3"
+    file: `${CDN_URL}/assets/music/auld-lang-syne-ultimate-year-end-nhac-giang-sinh-2024-257349.mp3`
   },
-  { name: "Solemn march - Icsilviu", file: "/music/solemn-march-435533.mp3" },
+  {
+    name: "Solemn march - Icsilviu",
+    file: `${CDN_URL}/assets/music/solemn-march-435533.mp3`
+  },
   {
     name: "432Hz Magic Healing: Cosmic Sleep & Focus Frequency - vividillustrate",
-    file: "/music/432hz-magic-healing-cosmic-sleep-amp-focus-frequency-361117.mp3"
+    file: `${CDN_URL}/assets/music/432hz-magic-healing-cosmic-sleep-amp-focus-frequency-361117.mp3`
   }
 ];
 ---

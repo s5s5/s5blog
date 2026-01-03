@@ -1,26 +1,53 @@
 ---
+import { format } from "date-fns";
+import { getCollection } from "astro:content";
+import CommentCount from "./CommentCount.astro";
 
+const allPosts = (await getCollection("blog")).sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+
+// 获取最后一篇文章（最新发布的）
+const latestPost = allPosts[0];
+const lastUpdated = latestPost.data.pubDate;
+
+// 获取第一篇文章（最早发布的）
+const oldestPost = allPosts[allPosts.length - 1];
+const firstPostDate = oldestPost.data.pubDate;
+
+// 获取文章总数
+const totalPosts = allPosts.length;
+
+// 格式化日期为 "yyyy-MM-dd"
+const dateStr = format(lastUpdated, "yyyy-MM-dd");
+const dateDigits = dateStr.split("-").join("").split("");
 ---
 
 <section>
   <h3 class="module-header">:: STATS</h3>
   <div class="cell-pad">
-    <div class="stat-label">VISITORS</div>
+    <div class="stat-label">LAST UPDATED</div>
     <div class="counter-box">
-      <span class="counter-digit">0</span><span class="counter-digit">8</span
-      ><span class="counter-digit">4</span>
-      <span class="counter-digit">2</span><span class="counter-digit">1</span
-      ><span class="counter-digit">9</span>
+      {dateDigits.map((digit) => <span class="counter-digit">{digit}</span>)}
     </div>
     <div style="margin-top: 8px">
       <div class="stat-row">
-        <span>ONLINE:</span><span class="stat-value highlight">12</span>
+        <span>DAYS ONLINE:</span>
+        <span class="stat-value highlight" id="daysOnline">-</span>
       </div>
       <div class="stat-row">
-        <span>TODAY:</span><span class="stat-value">143</span>
+        <span>POSTS:</span>
+        <span class="stat-value">{totalPosts}</span>
       </div>
       <div class="stat-row">
-        <span>SINCE:</span><span class="stat-value">2003</span>
+        <span>COMMENTS:</span>
+        <span class="stat-value">
+          <CommentCount server:defer />
+        </span>
+      </div>
+      <div class="stat-row">
+        <span>SINCE:</span>
+        <span class="stat-value">{firstPostDate.getFullYear()}</span>
       </div>
     </div>
     <div class="status-dots">
@@ -30,6 +57,17 @@
     </div>
   </div>
 </section>
+
+<script define:vars={{ firstPostDate: firstPostDate.toISOString() }}>
+  const daysOnline = document.getElementById("daysOnline");
+  if (daysOnline) {
+    const firstDate = new Date(firstPostDate);
+    const today = new Date();
+    daysOnline.textContent = Math.floor(
+      (today - firstDate) / (1000 * 60 * 60 * 24)
+    );
+  }
+</script>
 
 <style>
   /* Stats */

@@ -1,15 +1,22 @@
 ---
+import { getCollection } from "astro:content";
 import { BEI_AN, SITE_TITLE } from "../consts.ts";
 
-const today = new Date();
+const allPosts = (await getCollection("blog")).sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+
+// 获取第一篇文章（最早发布的）
+const oldestPost = allPosts[allPosts.length - 1];
+const firstPostDate = oldestPost.data.pubDate;
 ---
 
 <footer class="layout-footer">
-  © 2003-{today.getFullYear()}
+  © {firstPostDate.getFullYear()}-{new Date().getFullYear()}
   {SITE_TITLE}. ALL RIGHTS RESERVED.<br />
-  <a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener"
-    >{BEI_AN}</a
-  >
+  <a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow noopener">
+    {BEI_AN}
+  </a>
 </footer>
 
 <style>

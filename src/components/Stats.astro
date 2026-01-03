@@ -33,7 +33,11 @@ const dateDigits = dateStr.split("-").join("").split("");
     <div style="margin-top: 8px">
       <div class="stat-row">
         <span>DAYS ONLINE:</span>
-        <span class="stat-value highlight" id="daysOnline">-</span>
+        <span
+          class="stat-value highlight"
+          id="daysOnline"
+          data-first-post-date={firstPostDate.toISOString()}>-</span
+        >
       </div>
       <div class="stat-row">
         <span>POSTS:</span>
@@ -58,14 +62,18 @@ const dateDigits = dateStr.split("-").join("").split("");
   </div>
 </section>
 
-<script define:vars={{ firstPostDate: firstPostDate.toISOString() }}>
+<script>
   const daysOnline = document.getElementById("daysOnline");
   if (daysOnline) {
-    const firstDate = new Date(firstPostDate);
-    const today = new Date();
-    daysOnline.textContent = Math.floor(
-      (today - firstDate) / (1000 * 60 * 60 * 24)
-    );
+    const firstPostDateStr = daysOnline.dataset.firstPostDate;
+    if (firstPostDateStr) {
+      const firstDate = new Date(firstPostDateStr);
+      const today = new Date();
+      const days = Math.floor(
+        (today.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      daysOnline.textContent = String(days);
+    }
   }
 </script>
 

@@ -23,9 +23,13 @@ const musicFiles = [
         </marquee>
       </div>
       <audio id="audio-player" style="display: none;">
-        <source src={`/music/${musicFiles[0].file}`} type="audio/mpeg" />
+        <source src={musicFiles[0].file} type="audio/mpeg" />
       </audio>
-      <div class="pod-wheel">
+      <div
+        class="pod-wheel"
+        id="music-player"
+        data-music-files={JSON.stringify(musicFiles)}
+      >
         <div class="pod-control-icon pod-top">MENU</div>
         <button
           type="button"
@@ -57,30 +61,59 @@ const musicFiles = [
   </div>
 </section>
 
-<script define:vars={{ musicFiles }}>
-  const player = document.getElementById("audio-player");
-  const playPauseBtn = document.getElementById("play-pause-btn");
-  const prevBtn = document.getElementById("prev-btn");
-  const nextBtn = document.getElementById("next-btn");
-  const songDisplay = document.getElementById("song-display");
+<script>
+  const player = document.getElementById(
+    "audio-player"
+  ) as HTMLAudioElement | null;
+  const playPauseBtn = document.getElementById(
+    "play-pause-btn"
+  ) as HTMLButtonElement | null;
+  const prevBtn = document.getElementById(
+    "prev-btn"
+  ) as HTMLButtonElement | null;
+  const nextBtn = document.getElementById(
+    "next-btn"
+  ) as HTMLButtonElement | null;
+  const songDisplay = document.getElementById(
+    "song-display"
+  ) as HTMLElement | null;
+  const musicPlayerEl = document.getElementById("music-player");
+
+  if (
+    !player ||
+    !playPauseBtn ||
+    !prevBtn ||
+    !nextBtn ||
+    !songDisplay ||
+    !musicPlayerEl
+  ) {
+    throw new Error("Required elements not found");
+  }
+
+  // Get musicFiles from dataset
+  const musicFilesData = musicPlayerEl.dataset.musicFiles;
+  if (!musicFilesData) {
+    throw new Error("Music files data not found");
+  }
+  const musicFiles = JSON.parse(musicFilesData);
 
   let currentTrack = 0;
   let isPlaying = false;
 
   function updateDisplay() {
     const track = musicFiles[currentTrack];
-    player.src = track.file;
-    songDisplay.textContent = `Song: ${track.name}`;
+    player!.src = track.file;
+    songDisplay!.textContent = `Song: ${track.name}`;
   }
 
   function togglePlay() {
     if (isPlaying) {
-      player.pause();
-      playPauseBtn.textContent = "▷";
+      player!.pause();
+      playPauseBtn!.textContent = "▷";
       isPlaying = false;
     } else {
-      player.play();
-      playPauseBtn.textContent = "||";
+      player!.play();
+      playPauseBtn!.textContent = "||";
       isPlaying = true;
     }
   }
@@ -89,7 +122,7 @@ const musicFiles = [
     currentTrack = (currentTrack + 1) % musicFiles.length;
     updateDisplay();
     if (isPlaying) {
-      player.play();
+      player!.play();
     }
   }
 
@@ -97,17 +130,17 @@ const musicFiles = [
     currentTrack = (currentTrack - 1 + musicFiles.length) % musicFiles.length;
     updateDisplay();
     if (isPlaying) {
-      player.play();
+      player!.play();
     }
   }
 
   // Event listeners
-  playPauseBtn.addEventListener("click", togglePlay);
-  nextBtn.addEventListener("click", nextTrack);
-  prevBtn.addEventListener("click", prevTrack);
+  playPauseBtn!.addEventListener("click", togglePlay);
+  nextBtn!.addEventListener("click", nextTrack);
+  prevBtn!.addEventListener("click", prevTrack);
 
   // Auto play next track when current one ends
-  player.addEventListener("ended", nextTrack);
+  player!.addEventListener("ended", nextTrack);
 
   // Initialize
   updateDisplay();

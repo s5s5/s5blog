@@ -1,5 +1,16 @@
 ---
-
+// Music files from public/music directory
+const musicFiles = [
+  {
+    name: "Auld Lang Syne - Ultimate Year End - Nhạc Giáng Sinh 2024 - AudioBay_BGM",
+    file: "/music/auld-lang-syne-ultimate-year-end-nhac-giang-sinh-2024-257349.mp3"
+  },
+  { name: "Solemn march - Icsilviu", file: "/music/solemn-march-435533.mp3" },
+  {
+    name: "432Hz Magic Healing: Cosmic Sleep & Focus Frequency - vividillustrate",
+    file: "/music/432hz-magic-healing-cosmic-sleep-amp-focus-frequency-361117.mp3"
+  }
+];
 ---
 
 <section>
@@ -7,20 +18,37 @@
   <div class="cell-pad pod-container">
     <div class="pod-player">
       <div class="pod-screen">
-        <marquee scrollamount="2">Song: Lofi_Dream.mp3</marquee>
+        <marquee scrollamount="2" id="song-display">
+          Song: {musicFiles[0].name}
+        </marquee>
       </div>
+      <audio id="audio-player" style="display: none;">
+        <source src={`/music/${musicFiles[0].file}`} type="audio/mpeg" />
+      </audio>
       <div class="pod-wheel">
         <div class="pod-control-icon pod-top">MENU</div>
         <button
           type="button"
           class="pod-control-icon pod-bottom pod-active-btn"
+          id="play-pause-btn"
+          title="Play/Pause"
         >
-          ||
+          ▷
         </button>
-        <button type="button" class="pod-control-icon pod-left pod-active-btn">
+        <button
+          type="button"
+          class="pod-control-icon pod-left pod-active-btn"
+          id="prev-btn"
+          title="Previous"
+        >
           |&lt;
         </button>
-        <button type="button" class="pod-control-icon pod-right pod-active-btn">
+        <button
+          type="button"
+          class="pod-control-icon pod-right pod-active-btn"
+          id="next-btn"
+          title="Next"
+        >
           &gt;|
         </button>
         <div class="pod-btn-center"></div>
@@ -28,6 +56,62 @@
     </div>
   </div>
 </section>
+
+<script define:vars={{ musicFiles }}>
+  const player = document.getElementById("audio-player");
+  const playPauseBtn = document.getElementById("play-pause-btn");
+  const prevBtn = document.getElementById("prev-btn");
+  const nextBtn = document.getElementById("next-btn");
+  const songDisplay = document.getElementById("song-display");
+
+  let currentTrack = 0;
+  let isPlaying = false;
+
+  function updateDisplay() {
+    const track = musicFiles[currentTrack];
+    player.src = track.file;
+    songDisplay.textContent = `Song: ${track.name}`;
+  }
+
+  function togglePlay() {
+    if (isPlaying) {
+      player.pause();
+      playPauseBtn.textContent = "▷";
+      isPlaying = false;
+    } else {
+      player.play();
+      playPauseBtn.textContent = "||";
+      isPlaying = true;
+    }
+  }
+
+  function nextTrack() {
+    currentTrack = (currentTrack + 1) % musicFiles.length;
+    updateDisplay();
+    if (isPlaying) {
+      player.play();
+    }
+  }
+
+  function prevTrack() {
+    currentTrack = (currentTrack - 1 + musicFiles.length) % musicFiles.length;
+    updateDisplay();
+    if (isPlaying) {
+      player.play();
+    }
+  }
+
+  // Event listeners
+  playPauseBtn.addEventListener("click", togglePlay);
+  nextBtn.addEventListener("click", nextTrack);
+  prevBtn.addEventListener("click", prevTrack);
+
+  // Auto play next track when current one ends
+  player.addEventListener("ended", nextTrack);
+
+  // Initialize
+  updateDisplay();
+</script>
 
 <style>
   /* Pod Player */
@@ -87,8 +171,10 @@
   .pod-active-btn {
     background-color: transparent;
     border-radius: 2px;
-    border: none;
+    border: 1px solid transparent;
     cursor: pointer;
+    width: 12px;
+    height: 12px;
   }
   .pod-active-btn:hover {
     background-color: var(--cell-bg);
@@ -106,12 +192,12 @@
     transform: translateX(-50%);
   }
   .pod-left {
-    left: 4px;
+    left: 3px;
     top: 50%;
     transform: translateY(-50%);
   }
   .pod-right {
-    right: 4px;
+    right: 3px;
     top: 50%;
     transform: translateY(-50%);
   }

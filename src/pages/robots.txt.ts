@@ -8,6 +8,7 @@ Disallow: .gif$
 Disallow: .svg$
 Disallow: .png$
 Disallow: .bmp$
+Disallow: .mp3$
 Sitemap: ${sitemapURL.href}
 `;
 

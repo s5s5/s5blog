@@ -271,12 +271,8 @@ const initialData = JSON.stringify(postByMonth);
   }
 
   // 初始化组件
-  // 使用 Astro page:load 事件兼容 View Transitions (如果你开启了的话)
-  // 如果没开启 View Transitions，直接 run 也可以
-  document.addEventListener("astro:page-load", () => {
-    const calendars = document.querySelectorAll(".calendar-wrapper");
-    calendars.forEach((el) => new BlogCalendar(el as HTMLElement));
-  });
+  const calendars = document.querySelectorAll(".calendar-wrapper");
+  calendars.forEach((el) => new BlogCalendar(el as HTMLElement));
 </script>
 
 <style is:global>

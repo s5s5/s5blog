@@ -54,11 +54,6 @@ const weatherLabel = `${weather} ${key.toUpperCase()} ${icon}`;
         attributes: true,
         attributeFilter: ["data-theme"]
       });
-
-      // Also listen for view transitions
-      document.addEventListener("astro:after-swap", () => {
-        this.initCanvas();
-      });
     }
 
     paint(container: HTMLElement) {
